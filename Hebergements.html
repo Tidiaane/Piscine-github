@@ -1,0 +1,1345 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoyageVista - Hébergements</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       NAVBAR
+    ========================= */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid #e2e8f0;
+      backdrop-filter: blur(8px);
+    }
+
+    .navbar {
+      max-width: 1200px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      background: transparent;
+      text-align: left;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background: #0e7490;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .logo-title {
+      display: block;
+      color: #155e75;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .logo-subtitle {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links button {
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .nav-links button:hover,
+    .nav-links button.active {
+      background: #ecfeff;
+      color: #0e7490;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .dark-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      border: none;
+      background: #0e7490;
+      color: white;
+      box-shadow: 0 10px 18px rgba(14, 116, 144, 0.18);
+    }
+
+    .primary-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      background: white;
+      color: #0e7490;
+      border: 1px solid #bae6fd;
+    }
+
+    .secondary-btn:hover {
+      background: #ecfeff;
+      transform: translateY(-1px);
+    }
+
+    .dark-btn {
+      border: none;
+      background: #0f172a;
+      color: white;
+    }
+
+    .dark-btn:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       NOTIFICATIONS AU SURVOL
+    ========================= */
+    .notification-wrapper {
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    .notification-dropdown {
+      position: absolute;
+      top: 52px;
+      right: 0;
+      width: 330px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      box-shadow: 0 22px 45px rgba(15, 23, 42, 0.18);
+      padding: 14px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: 0.2s ease;
+    }
+
+    .notification-wrapper:hover .notification-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .notification-header strong {
+      color: #0f172a;
+      font-size: 16px;
+    }
+
+    .notification-header span {
+      color: #0e7490;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .notification-item {
+      width: 100%;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: none;
+      background: transparent;
+      text-align: left;
+      padding: 12px 8px;
+      border-radius: 16px;
+      transition: 0.2s;
+    }
+
+    .notification-item:hover {
+      background: #f0fdfa;
+    }
+
+    .notification-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #ecfeff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-item strong {
+      display: block;
+      color: #0f172a;
+      font-size: 14px;
+    }
+
+    .notification-item small {
+      display: block;
+      color: #64748b;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .notification-all {
+      width: 100%;
+      margin-top: 8px;
+      border: none;
+      border-radius: 999px;
+      background: #0e7490;
+      color: white;
+      padding: 11px 14px;
+      font-weight: 800;
+    }
+
+    .notification-all:hover {
+      background: #155e75;
+    }
+
+    /* =========================
+       HERO PAGE
+    ========================= */
+    .page-hero {
+      background:
+        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.76), rgba(5, 150, 105, 0.78)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80");
+      background-size: cover;
+      background-position: center;
+      color: white;
+    }
+
+    .page-hero-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 56px 24px 72px;
+      display: grid;
+      grid-template-columns: 1fr 0.75fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .breadcrumb {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+    }
+
+    .page-hero p {
+      max-width: 680px;
+      color: #ecfeff;
+      line-height: 1.7;
+      font-size: 18px;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 28px;
+    }
+
+    .hero-stat {
+      background: rgba(255, 255, 255, 0.14);
+      border: 1px solid rgba(255, 255, 255, 0.24);
+      padding: 16px;
+      border-radius: 20px;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 22px;
+    }
+
+    .hero-stat span {
+      display: block;
+      margin-top: 4px;
+      color: #cffafe;
+      font-size: 13px;
+    }
+
+    .hero-panel {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 18px;
+      box-shadow: 0 25px 55px rgba(15, 23, 42, 0.22);
+    }
+
+    .hero-panel-inner {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      color: #0f172a;
+    }
+
+    .hero-panel-image {
+      height: 220px;
+      background-image: url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1100&q=80");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-panel-body {
+      padding: 22px;
+    }
+
+    .hero-panel-body p {
+      color: #64748b;
+      font-size: 15px;
+      margin-top: 8px;
+    }
+
+    /* =========================
+       CONTENU PRINCIPAL
+    ========================= */
+    .main-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 0 24px 64px;
+    }
+
+    .search-card {
+      margin-top: -38px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 30px;
+      padding: 24px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+      position: relative;
+      z-index: 5;
+    }
+
+    .search-title-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .search-card h2 {
+      font-size: 24px;
+    }
+
+    .filters-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr 1fr;
+      gap: 14px;
+      align-items: end;
+    }
+
+    .advanced-filters {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+
+    .field label {
+      display: block;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 13px 14px;
+      outline: none;
+      font-size: 15px;
+      background: white;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+    }
+
+    .filter-panel {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 18px;
+      padding: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+    }
+
+    .filter-block h3 {
+      color: #0f172a;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .check-list {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .check-list label {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: #475569;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .filter-block input[type="range"] {
+      display: block;
+      width: 100%;
+      margin: 0;
+    }
+
+    .range-value {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      width: 100%;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 8px;
+      padding: 0 2px;
+    }
+
+    .range-value span:nth-child(1) {
+      text-align: left;
+    }
+
+    .range-value span:nth-child(2) {
+      text-align: center;
+    }
+
+    .range-value span:nth-child(3) {
+      text-align: right;
+    }
+
+    .filter-actions {
+      margin-top: 20px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .filter-actions button {
+      min-width: 170px;
+    }
+
+    .results-header {
+      margin-top: 42px;
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .sort-box {
+      min-width: 210px;
+    }
+
+    .sort-box label {
+      display: block;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 7px;
+    }
+
+    .sort-box select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 12px 16px;
+      outline: none;
+      font-size: 15px;
+      background: white;
+    }
+
+    .sort-box select:focus {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+    }
+
+    .results-header p {
+      color: #0e7490;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .results-header h2 {
+      font-size: 32px;
+      letter-spacing: -0.02em;
+    }
+
+    .hotel-list {
+      margin-top: 24px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hotel-card {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+      transition: 0.2s;
+    }
+
+    .hotel-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.10);
+    }
+
+    .hotel-image {
+      min-height: 230px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hotel-body {
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hotel-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .hotel-title h3 {
+      font-size: 23px;
+      margin-bottom: 7px;
+    }
+
+    .hotel-title p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .rating {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      margin-top: 10px;
+      color: #f59e0b;
+      font-weight: 800;
+    }
+
+    .hotel-price {
+      text-align: right;
+      min-width: 130px;
+    }
+
+    .hotel-price strong {
+      display: block;
+      color: #155e75;
+      font-size: 26px;
+    }
+
+    .hotel-price span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hotel-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hotel-tags span {
+      border-radius: 999px;
+      background: #ecfeff;
+      color: #0e7490;
+      padding: 7px 11px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .hotel-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+    }
+
+    .availability {
+      color: #059669;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .hotel-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .empty-result {
+      display: none;
+      background: white;
+      border: 1px dashed #cbd5e1;
+      border-radius: 24px;
+      padding: 36px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .empty-result strong {
+      display: block;
+      color: #0f172a;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .back-top-zone {
+      margin-top: 36px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+    footer {
+      border-top: 1px solid #e2e8f0;
+      background: white;
+      padding: 28px 24px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #64748b;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .footer-links button {
+      border: none;
+      background: transparent;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .footer-links button:hover {
+      color: #0e7490;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+    @media (max-width: 980px) {
+      .nav-links {
+        display: none;
+      }
+
+      .page-hero-container,
+      .hotel-card,
+      .filter-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .filters-grid,
+      .advanced-filters {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .navbar,
+      .results-header,
+      .footer-content,
+      .hotel-top,
+      .hotel-bottom,
+      .search-title-line {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .navbar {
+        align-items: flex-start;
+      }
+
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .page-hero-container {
+        padding: 44px 18px 64px;
+      }
+
+      .main-container {
+        padding: 0 18px 48px;
+      }
+
+      .filters-grid,
+      .advanced-filters,
+      .hero-stats,
+      .check-list {
+        grid-template-columns: 1fr;
+      }
+
+      .hotel-card {
+        grid-template-columns: 1fr;
+      }
+
+      .hotel-price {
+        text-align: left;
+      }
+
+      .hotel-actions,
+      .filter-actions {
+        justify-content: stretch;
+      }
+
+      .hotel-actions button,
+      .filter-actions button {
+        width: 100%;
+      }
+
+      .notification-dropdown {
+        right: -80px;
+        width: 300px;
+      }
+    }
+  </style>
+</head>
+
+<body id="haut-page">
+  <header>
+    <nav class="navbar">
+      <button class="logo" onclick="window.location.href='Acceuil.html'">
+        <span class="logo-icon">VV</span>
+        <span>
+          <span class="logo-title">VoyageVista</span>
+          <span class="logo-subtitle">Planifiez. Explorez. Vivez.</span>
+        </span>
+      </button>
+
+      <div class="nav-links">
+        <button onclick="actionTemporaire('Page destinations')">Destinations</button>
+        <button onclick="actionTemporaire('Page transports')">Transports</button>
+        <button class="active" onclick="actionTemporaire('Page hébergements')">Hébergements</button>
+        <button onclick="actionTemporaire('Page activités')">Activités</button>
+      </div>
+
+      <div class="nav-actions">
+        <button class="secondary-btn" onclick="allerAuxFiltres()">Recherche</button>
+
+        <div class="notification-wrapper">
+          <button class="icon-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </button>
+
+          <div class="notification-dropdown">
+            <div class="notification-header">
+              <strong>Notifications</strong>
+              <span>3 nouvelles</span>
+            </div>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : réservation confirmée')">
+              <span class="notification-icon">✅</span>
+              <span>
+                <strong>Réservation confirmée</strong>
+                <small>Votre hébergement a bien été ajouté.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : disponibilité')">
+              <span class="notification-icon">🏨</span>
+              <span>
+                <strong>Disponibilité limitée</strong>
+                <small>Plus que 2 chambres pour The Kayon Resort.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : offre spéciale')">
+              <span class="notification-icon">💸</span>
+              <span>
+                <strong>Offre spéciale</strong>
+                <small>-15% sur certains hôtels à Bali.</small>
+              </span>
+            </button>
+
+            <button class="notification-all" onclick="actionTemporaire('Voir toutes les notifications')">
+              Voir toutes les notifications
+            </button>
+          </div>
+        </div>
+
+        <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
+        <button class="primary-btn" onclick="actionTemporaire('Identifiant / Connexion')">Identifiant</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="page-hero-container">
+        <div>
+          <div class="breadcrumb">VoyageVista &gt; Hébergements</div>
+          <h1>Trouvez l’hébergement idéal pour votre voyage</h1>
+          <p>
+            Comparez des hôtels, villas, appartements et resorts sélectionnés pour construire
+            un séjour confortable, adapté à votre budget et à votre façon de voyager.
+          </p>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong>120+</strong>
+              <span>logements sélectionnés</span>
+            </div>
+            <div class="hero-stat">
+              <strong>35</strong>
+              <span>destinations</span>
+            </div>
+            <div class="hero-stat">
+              <strong>24h/7j</strong>
+              <span>assistance voyage</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="hero-panel-inner">
+            <div class="hero-panel-image"></div>
+            <div class="hero-panel-body">
+              <h2>Séjours confort, détente ou aventure</h2>
+              <p>Choisissez un hébergement adapté à votre destination, puis ajoutez-le à votre panier de voyage.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-container">
+      <form id="searchForm" class="search-card" onsubmit="rechercherHebergement(event)">
+        <div class="search-title-line">
+          <h2>Filtres de recherche</h2>
+          <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser les champs</button>
+        </div>
+
+        <div class="filters-grid">
+          <div class="field">
+            <label for="destination">Destination</label>
+            <input id="destination" type="text" placeholder="Ex : Bali, Paris, Athènes" />
+          </div>
+
+          <div class="field">
+            <label for="arrivee">Date d'arrivée</label>
+            <input id="arrivee" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="depart">Date de départ</label>
+            <input id="depart" type="date" />
+          </div>
+        </div>
+
+        <div class="advanced-filters">
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="">Tous</option>
+              <option value="hotel">Hôtel</option>
+              <option value="villa">Villa</option>
+              <option value="appartement">Appartement</option>
+              <option value="resort">Resort</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="voyageurs">Voyageurs</label>
+            <select id="voyageurs">
+              <option value="1">1 voyageur</option>
+              <option value="2" selected>2 voyageurs</option>
+              <option value="3">3 voyageurs</option>
+              <option value="4">4 voyageurs</option>
+              <option value="5">5 voyageurs ou plus</option>
+            </select>
+          </div>
+
+
+          <div class="field">
+            <label for="classement">Note minimum</label>
+            <select id="classement">
+              <option value="">Toutes</option>
+              <option value="3">3 étoiles et +</option>
+              <option value="4">4 étoiles et +</option>
+              <option value="4.5">4,5 étoiles et +</option>
+              <option value="5">5 étoiles</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-panel">
+          <div class="filter-block">
+            <h3>Options</h3>
+            <div class="check-list">
+              <label><input class="amenity-filter" type="checkbox" value="piscine" /> Piscine</label>
+              <label><input class="amenity-filter" type="checkbox" value="petit-dejeuner" /> Petit-déjeuner inclus</label>
+              <label><input class="amenity-filter" type="checkbox" value="annulation" /> Annulation gratuite</label>
+              <label><input class="amenity-filter" type="checkbox" value="centre" /> Proche du centre</label>
+              <label><input class="amenity-filter" type="checkbox" value="wifi" /> Wi-Fi inclus</label>
+            </div>
+          </div>
+
+          <div class="filter-block">
+            <h3>Prix par nuit</h3>
+            <input id="prixRangeInput" type="range" min="50" max="500" value="500" oninput="changerPrix(this.value)" />
+            <div class="range-value">
+              <span>50 €</span>
+              <span id="prixRange">500 €</span>
+              <span>500 €</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="filter-actions">
+          <button class="primary-btn" type="submit">Rechercher</button>
+        </div>
+      </form>
+
+      <div class="results-header">
+        <div>
+          <p>Résultats de recherche</p>
+          <h2><span id="nombreResultats">0</span> hébergement(s) disponible(s)</h2>
+        </div>
+
+        <div class="sort-box">
+          <label for="tri">Trier par</label>
+          <select id="tri">
+            <option value="recommande">Recommandé</option>
+            <option value="prix-croissant">Prix croissant</option>
+            <option value="prix-decroissant">Prix décroissant</option>
+            <option value="note">Meilleure note</option>
+            <option value="capacite">Capacité</option>
+          </select>
+        </div>
+      </div>
+
+      <section>
+        <div id="hotelList" class="hotel-list"></div>
+
+        <div id="emptyResult" class="empty-result">
+          <strong>Aucun hébergement trouvé</strong>
+          <span>Modifiez les filtres puis cliquez sur Rechercher.</span>
+        </div>
+      </section>
+
+      <div class="back-top-zone">
+        <button class="dark-btn" onclick="retourHautPage()">Revenir en haut de page</button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>© 2026 VoyageVista — Projet Web dynamique</p>
+      <div class="footer-links">
+        <button onclick="actionTemporaire('Aide')">Aide</button>
+        <button onclick="actionTemporaire('Conditions')">Conditions</button>
+        <button onclick="actionTemporaire('Contact')">Contact</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const hebergements = [
+      {
+        id: 1,
+        nom: "The Kayon Resort",
+        destination: "Bali",
+        pays: "Indonésie",
+        type: "resort",
+        capacite: 2,
+        prix: 125,
+        note: 4.8,
+        etoiles: "★★★★★",
+        disponibilite: "Disponible aux dates sélectionnées",
+        description: "Resort calme avec piscine, vue tropicale et accès rapide aux activités.",
+        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=900&q=80",
+        equipements: ["piscine", "petit-dejeuner", "annulation", "wifi"],
+        tags: ["Resort", "Piscine", "Petit-déjeuner", "Annulation gratuite"],
+        recommande: 1
+      },
+      {
+        id: 2,
+        nom: "Villa Ummah Sunset",
+        destination: "Bali",
+        pays: "Indonésie",
+        type: "villa",
+        capacite: 4,
+        prix: 180,
+        note: 4.5,
+        etoiles: "★★★★☆",
+        disponibilite: "Plus que 3 disponibilités",
+        description: "Villa indépendante idéale pour un séjour entre amis ou en famille.",
+        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80",
+        equipements: ["piscine", "wifi"],
+        tags: ["Villa", "4 voyageurs", "Cuisine", "Vue mer"],
+        recommande: 2
+      },
+      {
+        id: 3,
+        nom: "Sunshine Beach Hotel",
+        destination: "Bali",
+        pays: "Indonésie",
+        type: "hotel",
+        capacite: 2,
+        prix: 95,
+        note: 4.3,
+        etoiles: "★★★★☆",
+        disponibilite: "Disponible",
+        description: "Hôtel proche de la plage, pratique pour un séjour court et confortable.",
+        image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=80",
+        equipements: ["centre", "wifi", "petit-dejeuner"],
+        tags: ["Hôtel", "Plage", "Wi-Fi inclus", "2 voyageurs"],
+        recommande: 3
+      },
+      {
+        id: 4,
+        nom: "Athens Central Apartment",
+        destination: "Athènes",
+        pays: "Grèce",
+        type: "appartement",
+        capacite: 3,
+        prix: 88,
+        note: 4.1,
+        etoiles: "★★★★☆",
+        disponibilite: "Disponible",
+        description: "Appartement bien placé pour visiter le centre historique d'Athènes.",
+        image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80",
+        equipements: ["centre", "wifi", "annulation"],
+        tags: ["Appartement", "Centre-ville", "Wi-Fi", "Annulation gratuite"],
+        recommande: 4
+      },
+      {
+        id: 5,
+        nom: "Interlaken Mountain Lodge",
+        destination: "Interlaken",
+        pays: "Suisse",
+        type: "hotel",
+        capacite: 5,
+        prix: 210,
+        note: 4.7,
+        etoiles: "★★★★★",
+        disponibilite: "Dernières chambres disponibles",
+        description: "Lodge confortable avec vue montagne, parfait pour les randonnées.",
+        image: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80",
+        equipements: ["petit-dejeuner", "wifi", "annulation"],
+        tags: ["Montagne", "5 voyageurs", "Petit-déjeuner", "Vue alpine"],
+        recommande: 5
+      }
+    ];
+
+    function actionTemporaire(action) {
+      console.log("Action prévue :", action);
+      alert("Action prévue : " + action);
+    }
+
+    function normaliserTexte(texte) {
+      return texte
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+    }
+
+    function rechercherHebergement(event) {
+      event.preventDefault();
+      appliquerFiltres();
+    }
+
+    function getFiltresActifs() {
+      const destination = normaliserTexte(document.getElementById("destination").value.trim());
+      const type = document.getElementById("type").value;
+      const voyageurs = parseInt(document.getElementById("voyageurs").value, 10);
+      const noteMinSelect = document.getElementById("classement").value;
+      const budgetRange = parseInt(document.getElementById("prixRangeInput").value, 10);
+      const tri = document.getElementById("tri").value;
+
+      const budgetMax = budgetRange;
+      const noteMin = noteMinSelect === "" ? 0 : parseFloat(noteMinSelect);
+
+      const equipements = Array.from(document.querySelectorAll(".amenity-filter:checked"))
+        .map((checkbox) => checkbox.value);
+
+      return {
+        destination,
+        type,
+        voyageurs,
+        budgetMax,
+        noteMin,
+        equipements,
+        tri
+      };
+    }
+
+    function appliquerFiltres() {
+      const filtres = getFiltresActifs();
+
+      let resultats = hebergements.filter((hotel) => {
+        const texteHotel = normaliserTexte(hotel.nom + " " + hotel.destination + " " + hotel.pays + " " + hotel.type);
+        const correspondDestination = filtres.destination === "" || texteHotel.includes(filtres.destination);
+        const correspondType = filtres.type === "" || hotel.type === filtres.type;
+        const correspondCapacite = hotel.capacite >= filtres.voyageurs;
+        const correspondPrix = hotel.prix <= filtres.budgetMax;
+        const correspondNote = hotel.note >= filtres.noteMin;
+        const correspondEquipements = filtres.equipements.every((equipement) => hotel.equipements.includes(equipement));
+
+        return correspondDestination && correspondType && correspondCapacite && correspondPrix && correspondNote && correspondEquipements;
+      });
+
+      resultats = trierHebergements(resultats, filtres.tri);
+      afficherHebergements(resultats);
+    }
+
+    function trierHebergements(liste, tri) {
+      const resultats = [...liste];
+
+      if (tri === "prix-croissant") {
+        resultats.sort((a, b) => a.prix - b.prix);
+      } else if (tri === "prix-decroissant") {
+        resultats.sort((a, b) => b.prix - a.prix);
+      } else if (tri === "note") {
+        resultats.sort((a, b) => b.note - a.note);
+      } else if (tri === "capacite") {
+        resultats.sort((a, b) => b.capacite - a.capacite);
+      } else {
+        resultats.sort((a, b) => a.recommande - b.recommande);
+      }
+
+      return resultats;
+    }
+
+    function afficherHebergements(liste) {
+      const hotelList = document.getElementById("hotelList");
+      const emptyResult = document.getElementById("emptyResult");
+      const nombreResultats = document.getElementById("nombreResultats");
+
+      nombreResultats.textContent = liste.length;
+      hotelList.innerHTML = "";
+
+      if (liste.length === 0) {
+        emptyResult.style.display = "block";
+        return;
+      }
+
+      emptyResult.style.display = "none";
+
+      liste.forEach((hotel) => {
+        const article = document.createElement("article");
+        article.className = "hotel-card";
+
+        article.innerHTML = `
+          <div class="hotel-image" style="background-image: url('${hotel.image}')"></div>
+          <div class="hotel-body">
+            <div class="hotel-top">
+              <div class="hotel-title">
+                <h3>${hotel.nom}</h3>
+                <p>${hotel.description}</p>
+                <div class="rating">${hotel.etoiles} <span>${hotel.note.toFixed(1).replace(".", ",")} / 5</span></div>
+              </div>
+              <div class="hotel-price">
+                <strong>${hotel.prix} €</strong>
+                <span>par nuit</span>
+              </div>
+            </div>
+
+            <div class="hotel-tags">
+              ${hotel.tags.map((tag) => `<span>${tag}</span>`).join("")}
+            </div>
+
+            <div class="hotel-bottom">
+              <p class="availability">${hotel.disponibilite}</p>
+              <div class="hotel-actions">
+                <button class="secondary-btn" onclick="actionTemporaire('Voir détails ${hotel.nom}')">Voir détails</button>
+                <button class="primary-btn" onclick="actionTemporaire('Ajouter ${hotel.nom} au panier')">Ajouter au panier</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        hotelList.appendChild(article);
+      });
+    }
+
+    function changerPrix(valeur) {
+      document.getElementById("prixRange").textContent = valeur + " €";
+    }
+
+    function resetFiltres() {
+      document.getElementById("searchForm").reset();
+      document.getElementById("voyageurs").value = "2";
+      document.getElementById("prixRangeInput").value = "500";
+      document.getElementById("prixRange").textContent = "500 €";
+      document.getElementById("tri").value = "recommande";
+    }
+
+    function allerAuxFiltres() {
+      document.getElementById("searchForm").scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    function retourHautPage() {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      afficherHebergements(trierHebergements(hebergements, "recommande"));
+    });
+  </script>
+</body>
+</html>
