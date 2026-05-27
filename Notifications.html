@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoyageVista - Notifications</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       NAVBAR SIMPLE
+    ========================= */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .navbar {
+      max-width: 1100px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      background: transparent;
+      text-align: left;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 14px;
+      background: #0e7490;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .logo-title {
+      display: block;
+      color: #155e75;
+      font-size: 20px;
+      font-weight: 800;
+    }
+
+    .logo-subtitle {
+      display: block;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .nav-links,
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links button {
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-weight: 700;
+      padding: 10px 13px;
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .nav-links button:hover,
+    .nav-links button.active {
+      background: #ecfeff;
+      color: #0e7490;
+    }
+
+    .icon-btn {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover,
+    .icon-btn.active {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .badge {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      border: none;
+      background: #0e7490;
+      color: white;
+    }
+
+    .primary-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      background: white;
+      color: #0e7490;
+      border: 1px solid #bae6fd;
+    }
+
+    .secondary-btn:hover {
+      background: #ecfeff;
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       PAGE
+    ========================= */
+    main {
+      max-width: 1100px;
+      margin: auto;
+      padding: 42px 24px 64px;
+    }
+
+    .page-title {
+      margin-bottom: 28px;
+    }
+
+    .page-title p {
+      color: #0e7490;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .page-title h1 {
+      font-size: 40px;
+      letter-spacing: -0.03em;
+      margin-bottom: 10px;
+    }
+
+    .page-title span {
+      color: #64748b;
+      line-height: 1.6;
+      display: block;
+      max-width: 700px;
+    }
+
+    .top-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex;
+      gap: 10px;
+      flex: 1;
+      min-width: 280px;
+      max-width: 520px;
+    }
+
+    .search-box input {
+      flex: 1;
+      border: 1px solid #cbd5e1;
+      border-radius: 999px;
+      padding: 12px 15px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    .search-box input:focus {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+    }
+
+    .notification-list {
+      display: grid;
+      gap: 16px;
+    }
+
+    .notification-card {
+      display: grid;
+      grid-template-columns: 58px 1fr auto;
+      gap: 18px;
+      align-items: center;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+      transition: 0.2s;
+    }
+
+    .notification-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.08);
+    }
+
+    .notification-card.unread {
+      border-color: #67e8f9;
+      background: #ecfeff;
+    }
+
+    .notification-icon {
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: white;
+      border: 1px solid #bae6fd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+    }
+
+    .notification-content h2 {
+      font-size: 20px;
+      margin-bottom: 6px;
+    }
+
+    .notification-content p {
+      color: #64748b;
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .notification-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .notification-meta span {
+      background: white;
+      color: #0e7490;
+      border: 1px solid #bae6fd;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .notification-actions {
+      display: grid;
+      gap: 8px;
+      min-width: 150px;
+    }
+
+    .notification-actions button {
+      width: 100%;
+    }
+
+    .bottom-actions {
+      margin-top: 28px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .empty-search {
+      display: none;
+      margin-top: 16px;
+      background: white;
+      border: 1px dashed #cbd5e1;
+      border-radius: 22px;
+      padding: 28px;
+      text-align: center;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .empty-search strong {
+      display: block;
+      color: #0f172a;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+    footer {
+      border-top: 1px solid #e2e8f0;
+      background: white;
+      padding: 28px 24px;
+    }
+
+    .footer-content {
+      max-width: 1100px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #64748b;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .footer-links button {
+      border: none;
+      background: transparent;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .footer-links button:hover {
+      color: #0e7490;
+    }
+
+    @media (max-width: 900px) {
+      .nav-links {
+        display: none;
+      }
+
+      .notification-card {
+        grid-template-columns: 1fr;
+      }
+
+      .notification-actions {
+        min-width: 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .navbar,
+      .footer-content,
+      .top-actions,
+      .search-box,
+      .bottom-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .navbar {
+        align-items: flex-start;
+      }
+
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      main {
+        padding: 32px 18px 48px;
+      }
+
+      .notification-actions button,
+      .bottom-actions button,
+      .search-box button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar">
+      <button class="logo" onclick="window.location.href='Acceuil.html'">
+        <span class="logo-icon">VV</span>
+        <span>
+          <span class="logo-title">VoyageVista</span>
+          <span class="logo-subtitle">Planifiez. Explorez. Vivez.</span>
+        </span>
+      </button>
+
+      <div class="nav-links">
+        <button onclick="window.location.href='Destination.html'">Destinations</button>
+        <button onclick="window.location.href='Transport.html'">Transports</button>
+        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
+        <button onclick="window.location.href='Activites.html'">Activités</button>
+      </div>
+
+      <div class="nav-actions">
+        <button class="secondary-btn" onclick="window.location.href='Destination.html'">Recherche</button>
+
+        <button class="icon-btn active" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
+          🔔
+          <span class="badge">4</span>
+        </button>
+
+        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">
+          🛒
+          <span class="badge">4</span>
+        </button>
+
+        <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-title">
+      <p>VoyageVista &gt; Notifications</p>
+      <h1>Notifications</h1>
+      <span>Retrouvez les messages importants liés à votre voyage, votre panier et votre compte.</span>
+    </section>
+
+    <section class="top-actions">
+      <div class="search-box">
+        <input id="notificationSearch" type="text" placeholder="Rechercher une notification" oninput="rechercherNotifications()" />
+        <button class="secondary-btn" type="button" onclick="rechercherNotifications()">Rechercher</button>
+      </div>
+
+      <button class="primary-btn" onclick="window.location.href='Panier.html'">Voir mon panier</button>
+    </section>
+
+    <section id="notificationList" class="notification-list">
+      <article class="notification-card unread">
+        <div class="notification-icon">✅</div>
+        <div class="notification-content">
+          <h2>Hébergement ajouté au panier</h2>
+          <p>Votre hébergement a bien été ajouté. Vous pouvez vérifier votre sélection avant paiement.</p>
+          <div class="notification-meta">
+            <span>Hébergements</span>
+            <span>Il y a 10 min</span>
+          </div>
+        </div>
+        <div class="notification-actions">
+          <button class="primary-btn" onclick="window.location.href='Panier.html'">Voir panier</button>
+          <button class="secondary-btn" onclick="window.location.href='Hebergements.html'">Hébergements</button>
+        </div>
+      </article>
+
+      <article class="notification-card unread">
+        <div class="notification-icon">✈️</div>
+        <div class="notification-content">
+          <h2>Départ bientôt</h2>
+          <p>Consultez votre trajet pour vérifier les horaires et les informations de transport.</p>
+          <div class="notification-meta">
+            <span>Transport</span>
+            <span>Aujourd’hui</span>
+          </div>
+        </div>
+        <div class="notification-actions">
+          <button class="primary-btn" onclick="window.location.href='Transport.html'">Voir trajet</button>
+          <button class="secondary-btn" onclick="window.location.href='Panier.html'">Panier</button>
+        </div>
+      </article>
+
+      <article class="notification-card">
+        <div class="notification-icon">💸</div>
+        <div class="notification-content">
+          <h2>Code promo disponible</h2>
+          <p>Un code de réduction peut être appliqué dans votre panier avant validation.</p>
+          <div class="notification-meta">
+            <span>Offre</span>
+            <span>VOYAGE10</span>
+          </div>
+        </div>
+        <div class="notification-actions">
+          <button class="primary-btn" onclick="window.location.href='Panier.html'">Appliquer</button>
+          <button class="secondary-btn" onclick="window.location.href='Conditions.html'">Conditions</button>
+        </div>
+      </article>
+
+      <article class="notification-card">
+        <div class="notification-icon">🔐</div>
+        <div class="notification-content">
+          <h2>Connexion recommandée</h2>
+          <p>Connectez-vous pour retrouver votre panier et vos informations de voyage.</p>
+          <div class="notification-meta">
+            <span>Compte</span>
+            <span>Cette semaine</span>
+          </div>
+        </div>
+        <div class="notification-actions">
+          <button class="primary-btn" onclick="window.location.href='Connexion.html'">Se connecter</button>
+          <button class="secondary-btn" onclick="window.location.href='Aide.html'">Aide</button>
+        </div>
+      </article>
+    </section>
+
+    <div id="emptySearch" class="empty-search">
+      <strong>Aucune notification trouvée</strong>
+      <span>Essayez avec un autre mot-clé : panier, transport, hébergement, code promo, connexion...</span>
+    </div>
+
+    <section class="bottom-actions">
+      <button class="secondary-btn" onclick="window.location.href='Acceuil.html'">Retour accueil</button>
+      <button class="primary-btn" onclick="window.location.href='Destination.html'">Explorer les destinations</button>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>© 2026 VoyageVista — Projet Web dynamique</p>
+      <div class="footer-links">
+        <button onclick="window.location.href='Aide.html'">Aide</button>
+        <button onclick="window.location.href='Conditions.html'">Conditions</button>
+        <button onclick="window.location.href='Contact.html'">Contact</button>
+      </div>
+    </div>
+  </footer>
+  <script>
+    function normaliserTexte(texte) {
+      return texte
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[̀-ͯ]/g, "");
+    }
+
+    function rechercherNotifications() {
+      const recherche = normaliserTexte(document.getElementById("notificationSearch").value.trim());
+      const notifications = document.querySelectorAll(".notification-card");
+      const emptySearch = document.getElementById("emptySearch");
+      let nombreVisible = 0;
+
+      notifications.forEach((notification) => {
+        const contenu = normaliserTexte(notification.textContent);
+        const correspond = recherche === "" || contenu.includes(recherche);
+
+        notification.style.display = correspond ? "grid" : "none";
+
+        if (correspond) {
+          nombreVisible++;
+        }
+      });
+
+      emptySearch.style.display = nombreVisible === 0 ? "block" : "none";
+    }
+  </script>
+</body>
+</html>
