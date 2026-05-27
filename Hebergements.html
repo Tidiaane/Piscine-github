@@ -864,9 +864,9 @@
       </button>
 
       <div class="nav-links">
-        <button onclick="actionTemporaire('Page destinations')">Destinations</button>
+        <button onclick="allerDestinations()">Destinations</button>
         <button onclick="actionTemporaire('Page transports')">Transports</button>
-        <button class="active" onclick="actionTemporaire('Page hébergements')">Hébergements</button>
+        <button class="active" onclick="allerHebergements()">Hébergements</button>
         <button onclick="actionTemporaire('Page activités')">Activités</button>
       </div>
 
@@ -1094,6 +1094,10 @@
   </footer>
 
   <script>
+    function allerHebergements() {
+      window.location.href = "Hebergements.html";
+    }
+
     const hebergements = [
       {
         id: 1,
@@ -1181,6 +1185,10 @@
         recommande: 5
       }
     ];
+
+    function allerDestinations() {
+      window.location.href = "Destination.html";
+    }
 
     function actionTemporaire(action) {
       console.log("Action prévue :", action);
