@@ -127,6 +127,129 @@
       border-color: #67e8f9;
     }
 
+    .notification-wrapper {
+      position: relative;
+    }
+
+    .notification-btn {
+      position: relative;
+    }
+
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    .notification-dropdown {
+      position: absolute;
+      top: 52px;
+      right: 0;
+      width: 330px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      box-shadow: 0 22px 45px rgba(15, 23, 42, 0.18);
+      padding: 14px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: 0.2s ease;
+    }
+
+    .notification-wrapper:hover .notification-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .notification-header strong {
+      color: #0f172a;
+      font-size: 16px;
+    }
+
+    .notification-header span {
+      color: #0e7490;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .notification-item {
+      width: 100%;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: none;
+      background: transparent;
+      text-align: left;
+      padding: 12px 8px;
+      border-radius: 16px;
+      transition: 0.2s;
+    }
+
+    .notification-item:hover {
+      background: #f0fdfa;
+    }
+
+    .notification-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #ecfeff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-item strong {
+      display: block;
+      color: #0f172a;
+      font-size: 14px;
+    }
+
+    .notification-item small {
+      display: block;
+      color: #64748b;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .notification-all {
+      width: 100%;
+      margin-top: 8px;
+      border: none;
+      border-radius: 999px;
+      background: #0e7490;
+      color: white;
+      padding: 11px 14px;
+      font-weight: 800;
+    }
+
+    .notification-all:hover {
+      background: #155e75;
+    }
+
     .primary-btn,
     .secondary-btn {
       display: inline-flex;
@@ -595,7 +718,47 @@
       </div>
 
       <div class="nav-actions">
-        <button class="icon-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">🔔</button>
+        <div class="notification-wrapper">
+          <button class="icon-btn notification-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </button>
+
+          <div class="notification-dropdown">
+            <div class="notification-header">
+              <strong>Notifications</strong>
+              <span>3 nouvelles</span>
+            </div>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : réservation confirmée')">
+              <span class="notification-icon">✅</span>
+              <span>
+                <strong>Réservation confirmée</strong>
+                <small>Votre séjour à Bali a été validé.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : départ bientôt')">
+              <span class="notification-icon">✈️</span>
+              <span>
+                <strong>Départ dans 2 jours</strong>
+                <small>Pensez à vérifier votre trajet.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : activité disponible')">
+              <span class="notification-icon">🎒</span>
+              <span>
+                <strong>Activité disponible</strong>
+                <small>Une nouvelle excursion a été ajoutée.</small>
+              </span>
+            </button>
+
+            <button class="notification-all" onclick="actionTemporaire('Voir toutes les notifications')">
+              Voir toutes les notifications
+            </button>
+          </div>
+        </div>
         <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
         <button class="primary-btn" onclick="actionTemporaire('Connexion')">Connexion</button>
       </div>
