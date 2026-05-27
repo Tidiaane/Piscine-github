@@ -713,7 +713,7 @@
       <div class="nav-links">
         <button onclick="actionTemporaire('Page destinations')">Destinations</button>
         <button onclick="actionTemporaire('Page transports')">Transports</button>
-        <button onclick="actionTemporaire('Page hébergements')">Hébergements</button>
+        <button onclick="allerHebergements()">Hébergements</button>
         <button onclick="actionTemporaire('Page activités')">Activités</button>
       </div>
 
@@ -824,7 +824,7 @@
           <p>Comparer avion, train, bus ou voiture.</p>
         </button>
 
-        <button class="service-card" onclick="actionTemporaire('Ouvrir Hébergements')">
+        <button class="service-card" onclick="allerHebergements()">
           <span class="service-icon">🏨</span>
           <h3>Hébergements</h3>
           <p>Choisir un hôtel, appartement ou resort.</p>
@@ -931,6 +931,10 @@
   </footer>
 
   <script>
+    function allerHebergements() {
+      window.location.href = "Hebergements.html";
+    }
+
     // Fonction temporaire : les boutons sont prêts mais ne redirigent pas encore.
     // Plus tard, on pourra remplacer les alertes par : window.location.href = "catalogue.html";
     function actionTemporaire(action) {
