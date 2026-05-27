@@ -712,7 +712,7 @@
 
       <div class="nav-links">
         <button onclick="allerDestinations()">Destinations</button>
-        <button onclick="actionTemporaire('Page transports')">Transports</button>
+        <button onclick="allerTransports()">Transports</button>
         <button onclick="allerHebergements()">Hébergements</button>
         <button onclick="actionTemporaire('Page activités')">Activités</button>
       </div>
@@ -818,7 +818,7 @@
           <p>Explorer les pays, villes et séjours proposés.</p>
         </button>
 
-        <button class="service-card" onclick="actionTemporaire('Ouvrir Transports')">
+        <button class="service-card" onclick="allerTransports()">
           <span class="service-icon">✈️</span>
           <h3>Transports</h3>
           <p>Comparer avion, train, bus ou voiture.</p>
@@ -931,6 +931,10 @@
   </footer>
 
   <script>
+    function allerTransports() {
+      window.location.href = "Transport.html";
+    }
+
     function allerDestinations() {
       window.location.href = "Destination.html";
     }

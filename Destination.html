@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VoyageVista - Destinations</title>
+  <title>VoyageVista - Hébergements</title>
 
   <style>
     * {
@@ -183,7 +183,7 @@
     }
 
     /* =========================
-       NOTIFICATIONS
+       NOTIFICATIONS AU SURVOL
     ========================= */
     .notification-wrapper {
       position: relative;
@@ -305,12 +305,12 @@
     }
 
     /* =========================
-       HERO
+       HERO PAGE
     ========================= */
     .page-hero {
       background:
-        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.72), rgba(5, 150, 105, 0.75)),
-        url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80");
+        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.76), rgba(5, 150, 105, 0.78)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80");
       background-size: cover;
       background-position: center;
       color: white;
@@ -395,7 +395,7 @@
 
     .hero-panel-image {
       height: 220px;
-      background-image: url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1100&q=80");
+      background-image: url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1100&q=80");
       background-size: cover;
       background-position: center;
     }
@@ -411,7 +411,7 @@
     }
 
     /* =========================
-       FILTRES ET RÉSULTATS
+       CONTENU PRINCIPAL
     ========================= */
     .main-container {
       max-width: 1200px;
@@ -444,9 +444,16 @@
 
     .filters-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr 1fr;
       gap: 14px;
       align-items: end;
+    }
+
+    .advanced-filters {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
     }
 
     .field label {
@@ -493,7 +500,7 @@
 
     .check-list {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
 
@@ -555,17 +562,6 @@
       gap: 20px;
     }
 
-    .results-header p {
-      color: #0e7490;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .results-header h2 {
-      font-size: 32px;
-      letter-spacing: -0.02em;
-    }
-
     .sort-box {
       min-width: 210px;
     }
@@ -588,102 +584,137 @@
       background: white;
     }
 
-    .destination-list {
-      margin-top: 24px;
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+    .sort-box select:focus {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
     }
 
-    .destination-card {
-      overflow: hidden;
+    .results-header p {
+      color: #0e7490;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .results-header h2 {
+      font-size: 32px;
+      letter-spacing: -0.02em;
+    }
+
+    .hotel-list {
+      margin-top: 24px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .hotel-card {
+      display: grid;
+      grid-template-columns: 260px 1fr;
       background: white;
       border: 1px solid #e2e8f0;
-      border-radius: 28px;
+      border-radius: 26px;
+      overflow: hidden;
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
       transition: 0.2s;
     }
 
-    .destination-card:hover {
-      transform: translateY(-4px);
+    .hotel-card:hover {
+      transform: translateY(-3px);
       box-shadow: 0 18px 38px rgba(15, 23, 42, 0.10);
     }
 
-    .destination-image {
-      height: 220px;
+    .hotel-image {
+      min-height: 230px;
       background-size: cover;
       background-position: center;
-      position: relative;
     }
 
-    .destination-badge {
-      position: absolute;
-      left: 16px;
-      top: 16px;
+    .hotel-body {
+      padding: 22px;
+      display: grid;
+      gap: 16px;
+    }
+
+    .hotel-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .hotel-title h3 {
+      font-size: 23px;
+      margin-bottom: 7px;
+    }
+
+    .hotel-title p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .rating {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      margin-top: 10px;
+      color: #f59e0b;
+      font-weight: 800;
+    }
+
+    .hotel-price {
+      text-align: right;
+      min-width: 130px;
+    }
+
+    .hotel-price strong {
+      display: block;
+      color: #155e75;
+      font-size: 26px;
+    }
+
+    .hotel-price span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .hotel-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .hotel-tags span {
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.92);
+      background: #ecfeff;
       color: #0e7490;
       padding: 7px 11px;
       font-size: 13px;
       font-weight: 800;
     }
 
-    .destination-body {
-      padding: 22px;
-    }
-
-    .destination-body h3 {
-      font-size: 22px;
-      margin-bottom: 8px;
-    }
-
-    .destination-body p {
-      color: #64748b;
-      line-height: 1.6;
-    }
-
-    .destination-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 15px;
-    }
-
-    .destination-meta span {
-      border-radius: 999px;
-      background: #ecfeff;
-      color: #0e7490;
-      padding: 7px 10px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .destination-footer {
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid #e2e8f0;
+    .hotel-bottom {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
     }
 
-    .destination-footer strong {
-      display: block;
-      color: #155e75;
-      font-size: 22px;
+    .availability {
+      color: #059669;
+      font-weight: 800;
+      font-size: 14px;
     }
 
-    .destination-footer small {
-      display: block;
-      color: #64748b;
-      font-weight: 700;
-      margin-top: 2px;
+    .hotel-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
     }
 
     .empty-result {
       display: none;
-      margin-top: 24px;
       background: white;
       border: 1px dashed #cbd5e1;
       border-radius: 24px;
@@ -748,15 +779,13 @@
       }
 
       .page-hero-container,
+      .hotel-card,
       .filter-panel {
         grid-template-columns: 1fr;
       }
 
-      .filters-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .destination-list {
+      .filters-grid,
+      .advanced-filters {
         grid-template-columns: repeat(2, 1fr);
       }
     }
@@ -765,6 +794,8 @@
       .navbar,
       .results-header,
       .footer-content,
+      .hotel-top,
+      .hotel-bottom,
       .search-title-line {
         flex-direction: column;
         align-items: stretch;
@@ -789,16 +820,26 @@
       }
 
       .filters-grid,
+      .advanced-filters,
       .hero-stats,
-      .check-list,
-      .destination-list {
+      .check-list {
         grid-template-columns: 1fr;
       }
 
+      .hotel-card {
+        grid-template-columns: 1fr;
+      }
+
+      .hotel-price {
+        text-align: left;
+      }
+
+      .hotel-actions,
       .filter-actions {
         justify-content: stretch;
       }
 
+      .hotel-actions button,
       .filter-actions button {
         width: 100%;
       }
@@ -823,9 +864,9 @@
       </button>
 
       <div class="nav-links">
-        <button class="active" onclick="window.location.href='Destinations.html'">Destinations</button>
-        <button onclick="actionTemporaire('Page transports')">Transports</button>
-        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
+        <button onclick="actionTemporaire('Page destinations')">Destinations</button>
+        <button onclick="allerTransports()">Transports</button>
+        <button class="active" onclick="actionTemporaire('Page hébergements')">Hébergements</button>
         <button onclick="actionTemporaire('Page activités')">Activités</button>
       </div>
 
@@ -844,11 +885,19 @@
               <span>3 nouvelles</span>
             </div>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : destination ajoutée')">
-              <span class="notification-icon">🌍</span>
+            <button class="notification-item" onclick="actionTemporaire('Notification : réservation confirmée')">
+              <span class="notification-icon">✅</span>
               <span>
-                <strong>Nouvelle destination</strong>
-                <small>Tokyo vient d’être ajoutée au catalogue.</small>
+                <strong>Réservation confirmée</strong>
+                <small>Votre hébergement a bien été ajouté.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="actionTemporaire('Notification : disponibilité')">
+              <span class="notification-icon">🏨</span>
+              <span>
+                <strong>Disponibilité limitée</strong>
+                <small>Plus que 2 chambres pour The Kayon Resort.</small>
               </span>
             </button>
 
@@ -856,15 +905,7 @@
               <span class="notification-icon">💸</span>
               <span>
                 <strong>Offre spéciale</strong>
-                <small>-15% sur plusieurs séjours en Europe.</small>
-              </span>
-            </button>
-
-            <button class="notification-item" onclick="actionTemporaire('Notification : panier')">
-              <span class="notification-icon">🛒</span>
-              <span>
-                <strong>Panier sauvegardé</strong>
-                <small>Votre sélection de voyage est conservée.</small>
+                <small>-15% sur certains hôtels à Bali.</small>
               </span>
             </button>
 
@@ -875,7 +916,7 @@
         </div>
 
         <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
-        <button class="primary-btn" onclick="actionTemporaire('Identifiant / Connexion')">Identifiant</button>
+        <button class="primary-btn" onclick="actionTemporaire('Identifiant / Connexion')">Connexion</button>
       </div>
     </nav>
   </header>
@@ -884,25 +925,25 @@
     <section class="page-hero">
       <div class="page-hero-container">
         <div>
-          <div class="breadcrumb">VoyageVista &gt; Destinations</div>
-          <h1>Catalogue des destinations</h1>
+          <div class="breadcrumb">VoyageVista &gt; Hébergements</div>
+          <h1>Trouvez l’hébergement idéal pour votre voyage</h1>
           <p>
-            Explorez des destinations adaptées à votre style de voyage : plage, montagne,
-            aventure, culture ou détente. Comparez les prix, les durées et les catégories avant de composer votre séjour.
+            Comparez des hôtels, villas, appartements et resorts sélectionnés pour construire
+            un séjour confortable, adapté à votre budget et à votre façon de voyager.
           </p>
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <strong>35+</strong>
+              <strong>120+</strong>
+              <span>logements sélectionnés</span>
+            </div>
+            <div class="hero-stat">
+              <strong>35</strong>
               <span>destinations</span>
             </div>
             <div class="hero-stat">
-              <strong>12</strong>
-              <span>pays proposés</span>
-            </div>
-            <div class="hero-stat">
-              <strong>5</strong>
-              <span>styles de voyage</span>
+              <strong>24h/7j</strong>
+              <span>assistance voyage</span>
             </div>
           </div>
         </div>
@@ -911,8 +952,8 @@
           <div class="hero-panel-inner">
             <div class="hero-panel-image"></div>
             <div class="hero-panel-body">
-              <h2>Choisissez votre prochaine aventure</h2>
-              <p>Sélectionnez une destination, consultez les détails, puis ajoutez transports, hébergements et activités.</p>
+              <h2>Séjours confort, détente ou aventure</h2>
+              <p>Choisissez un hébergement adapté à votre destination, puis ajoutez-le à votre panier de voyage.</p>
             </div>
           </div>
         </div>
@@ -920,7 +961,7 @@
     </section>
 
     <section class="main-container">
-      <form id="searchForm" class="search-card" onsubmit="rechercherDestination(event)">
+      <form id="searchForm" class="search-card" onsubmit="rechercherHebergement(event)">
         <div class="search-title-line">
           <h2>Filtres de recherche</h2>
           <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser les champs</button>
@@ -928,67 +969,79 @@
 
         <div class="filters-grid">
           <div class="field">
-            <label for="destination">Destination ou pays</label>
-            <input id="destination" type="text" placeholder="Ex : Bali, Suisse, Grèce" />
+            <label for="destination">Destination</label>
+            <input id="destination" type="text" placeholder="Ex : Bali, Paris, Athènes" />
           </div>
 
           <div class="field">
-            <label for="categorie">Catégorie</label>
-            <select id="categorie">
-              <option value="">Toutes</option>
-              <option value="plage">Plage</option>
-              <option value="montagne">Montagne</option>
-              <option value="culture">Culture</option>
-              <option value="aventure">Aventure</option>
-              <option value="detente">Détente</option>
+            <label for="arrivee">Date d'arrivée</label>
+            <input id="arrivee" type="date" />
+          </div>
+
+          <div class="field">
+            <label for="depart">Date de départ</label>
+            <input id="depart" type="date" />
+          </div>
+        </div>
+
+        <div class="advanced-filters">
+          <div class="field">
+            <label for="type">Type</label>
+            <select id="type">
+              <option value="">Tous</option>
+              <option value="hotel">Hôtel</option>
+              <option value="villa">Villa</option>
+              <option value="appartement">Appartement</option>
+              <option value="resort">Resort</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="duree">Durée</label>
-            <select id="duree">
-              <option value="">Toutes</option>
-              <option value="3">3 jours max</option>
-              <option value="5">5 jours max</option>
-              <option value="7">7 jours max</option>
-              <option value="10">10 jours max</option>
+            <label for="voyageurs">Voyageurs</label>
+            <select id="voyageurs">
+              <option value="1">1 voyageur</option>
+              <option value="2" selected>2 voyageurs</option>
+              <option value="3">3 voyageurs</option>
+              <option value="4">4 voyageurs</option>
+              <option value="5">5 voyageurs ou plus</option>
             </select>
           </div>
 
+
           <div class="field">
-            <label for="saison">Saison conseillée</label>
-            <select id="saison">
+            <label for="classement">Note minimum</label>
+            <select id="classement">
               <option value="">Toutes</option>
-              <option value="printemps">Printemps</option>
-              <option value="ete">Été</option>
-              <option value="automne">Automne</option>
-              <option value="hiver">Hiver</option>
+              <option value="3">3 étoiles et +</option>
+              <option value="4">4 étoiles et +</option>
+              <option value="4.5">4,5 étoiles et +</option>
+              <option value="5">5 étoiles</option>
             </select>
           </div>
         </div>
 
         <div class="filter-panel">
           <div class="filter-block">
-            <h3>Styles de voyage</h3>
+            <h3>Options</h3>
             <div class="check-list">
-              <label><input class="style-filter" type="checkbox" value="famille" /> Famille</label>
-              <label><input class="style-filter" type="checkbox" value="couple" /> Couple</label>
-              <label><input class="style-filter" type="checkbox" value="amis" /> Amis</label>
-              <label><input class="style-filter" type="checkbox" value="sport" /> Sport</label>
-              <label><input class="style-filter" type="checkbox" value="culture" /> Culture</label>
-              <label><input class="style-filter" type="checkbox" value="nature" /> Nature</label>
+              <label><input class="amenity-filter" type="checkbox" value="piscine" /> Piscine</label>
+              <label><input class="amenity-filter" type="checkbox" value="petit-dejeuner" /> Petit-déjeuner inclus</label>
+              <label><input class="amenity-filter" type="checkbox" value="annulation" /> Annulation gratuite</label>
+              <label><input class="amenity-filter" type="checkbox" value="centre" /> Proche du centre</label>
+              <label><input class="amenity-filter" type="checkbox" value="wifi" /> Wi-Fi inclus</label>
             </div>
           </div>
 
           <div class="filter-block">
-            <h3>Prix maximum</h3>
-            <input id="prixRangeInput" type="range" min="300" max="2000" value="2000" oninput="changerPrix(this.value)" />
+            <h3>Prix par nuit</h3>
+            <input id="prixRangeInput" type="range" min="50" max="500" value="500" oninput="changerPrix(this.value)" />
             <div class="range-value">
-              <span>300 €</span>
-              <span id="prixRange">2000 €</span>
-              <span>2000 €</span>
+              <span>50 €</span>
+              <span id="prixRange">500 €</span>
+              <span>500 €</span>
             </div>
           </div>
+
         </div>
 
         <div class="filter-actions">
@@ -999,7 +1052,7 @@
       <div class="results-header">
         <div>
           <p>Résultats de recherche</p>
-          <h2><span id="nombreResultats">0</span> destination(s) disponible(s)</h2>
+          <h2><span id="nombreResultats">0</span> hébergement(s) disponible(s)</h2>
         </div>
 
         <div class="sort-box">
@@ -1008,17 +1061,17 @@
             <option value="recommande">Recommandé</option>
             <option value="prix-croissant">Prix croissant</option>
             <option value="prix-decroissant">Prix décroissant</option>
-            <option value="duree">Durée la plus courte</option>
             <option value="note">Meilleure note</option>
+            <option value="capacite">Capacité</option>
           </select>
         </div>
       </div>
 
       <section>
-        <div id="destinationList" class="destination-list"></div>
+        <div id="hotelList" class="hotel-list"></div>
 
         <div id="emptyResult" class="empty-result">
-          <strong>Aucune destination trouvée</strong>
+          <strong>Aucun hébergement trouvé</strong>
           <span>Modifiez les filtres puis cliquez sur Rechercher.</span>
         </div>
       </section>
@@ -1041,96 +1094,95 @@
   </footer>
 
   <script>
-    const destinations = [
+    function allerTransports() {
+      window.location.href = "Transport.html";
+    }
+
+    const hebergements = [
       {
         id: 1,
-        nom: "Bali",
+        nom: "The Kayon Resort",
+        destination: "Bali",
         pays: "Indonésie",
-        categorie: "plage",
-        duree: 7,
-        saison: "ete",
-        prix: 899,
+        type: "resort",
+        capacite: 2,
+        prix: 125,
         note: 4.8,
-        description: "Plages tropicales, rizières, temples et ambiance détente pour un séjour complet.",
-        image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80",
-        styles: ["couple", "amis", "nature"],
-        tags: ["Plage", "Nature", "Détente"],
+        etoiles: "★★★★★",
+        disponibilite: "Disponible aux dates sélectionnées",
+        description: "Resort calme avec piscine, vue tropicale et accès rapide aux activités.",
+        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=900&q=80",
+        equipements: ["piscine", "petit-dejeuner", "annulation", "wifi"],
+        tags: ["Resort", "Piscine", "Petit-déjeuner", "Annulation gratuite"],
         recommande: 1
       },
       {
         id: 2,
-        nom: "Interlaken",
-        pays: "Suisse",
-        categorie: "montagne",
-        duree: 5,
-        saison: "hiver",
-        prix: 749,
-        note: 4.7,
-        description: "Destination alpine idéale pour les randonnées, les sports d'hiver et les paysages de montagne.",
-        image: "https://images.unsplash.com/photo-1500048993953-d23a436266cf?auto=format&fit=crop&w=900&q=80",
-        styles: ["sport", "nature", "amis"],
-        tags: ["Montagne", "Sport", "Nature"],
+        nom: "Villa Ummah Sunset",
+        destination: "Bali",
+        pays: "Indonésie",
+        type: "villa",
+        capacite: 4,
+        prix: 180,
+        note: 4.5,
+        etoiles: "★★★★☆",
+        disponibilite: "Plus que 3 disponibilités",
+        description: "Villa indépendante idéale pour un séjour entre amis ou en famille.",
+        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80",
+        equipements: ["piscine", "wifi"],
+        tags: ["Villa", "4 voyageurs", "Cuisine", "Vue mer"],
         recommande: 2
       },
       {
         id: 3,
-        nom: "Athènes",
-        pays: "Grèce",
-        categorie: "culture",
-        duree: 4,
-        saison: "printemps",
-        prix: 529,
-        note: 4.4,
-        description: "Ville historique parfaite pour découvrir monuments antiques, musées et gastronomie locale.",
-        image: "https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=900&q=80",
-        styles: ["culture", "couple", "famille"],
-        tags: ["Culture", "Ville", "Histoire"],
+        nom: "Sunshine Beach Hotel",
+        destination: "Bali",
+        pays: "Indonésie",
+        type: "hotel",
+        capacite: 2,
+        prix: 95,
+        note: 4.3,
+        etoiles: "★★★★☆",
+        disponibilite: "Disponible",
+        description: "Hôtel proche de la plage, pratique pour un séjour court et confortable.",
+        image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=80",
+        equipements: ["centre", "wifi", "petit-dejeuner"],
+        tags: ["Hôtel", "Plage", "Wi-Fi inclus", "2 voyageurs"],
         recommande: 3
       },
       {
         id: 4,
-        nom: "Marrakech",
-        pays: "Maroc",
-        categorie: "culture",
-        duree: 5,
-        saison: "automne",
-        prix: 610,
-        note: 4.5,
-        description: "Souks, palais, jardins et excursions dans le désert pour un voyage dépaysant.",
-        image: "https://images.unsplash.com/photo-1597212720419-b3d8300b5004?auto=format&fit=crop&w=900&q=80",
-        styles: ["culture", "couple", "amis"],
-        tags: ["Culture", "Désert", "Gastronomie"],
+        nom: "Athens Central Apartment",
+        destination: "Athènes",
+        pays: "Grèce",
+        type: "appartement",
+        capacite: 3,
+        prix: 88,
+        note: 4.1,
+        etoiles: "★★★★☆",
+        disponibilite: "Disponible",
+        description: "Appartement bien placé pour visiter le centre historique d'Athènes.",
+        image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80",
+        equipements: ["centre", "wifi", "annulation"],
+        tags: ["Appartement", "Centre-ville", "Wi-Fi", "Annulation gratuite"],
         recommande: 4
       },
       {
         id: 5,
-        nom: "Tokyo",
-        pays: "Japon",
-        categorie: "aventure",
-        duree: 10,
-        saison: "printemps",
-        prix: 1490,
-        note: 4.9,
-        description: "Grande ville moderne, quartiers animés, temples, technologie et découverte culturelle.",
-        image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80",
-        styles: ["culture", "amis", "aventure"],
-        tags: ["Ville", "Culture", "Aventure"],
+        nom: "Interlaken Mountain Lodge",
+        destination: "Interlaken",
+        pays: "Suisse",
+        type: "hotel",
+        capacite: 5,
+        prix: 210,
+        note: 4.7,
+        etoiles: "★★★★★",
+        disponibilite: "Dernières chambres disponibles",
+        description: "Lodge confortable avec vue montagne, parfait pour les randonnées.",
+        image: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80",
+        equipements: ["petit-dejeuner", "wifi", "annulation"],
+        tags: ["Montagne", "5 voyageurs", "Petit-déjeuner", "Vue alpine"],
         recommande: 5
-      },
-      {
-        id: 6,
-        nom: "Maldives",
-        pays: "Maldives",
-        categorie: "detente",
-        duree: 7,
-        saison: "hiver",
-        prix: 1790,
-        note: 4.9,
-        description: "Séjour premium orienté détente, lagons, plages et hébergements proches de l'eau.",
-        image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=900&q=80",
-        styles: ["couple", "nature"],
-        tags: ["Détente", "Plage", "Premium"],
-        recommande: 6
       }
     ];
 
@@ -1147,30 +1199,32 @@
         .replace(/[\u0300-\u036f]/g, "");
     }
 
-    function rechercherDestination(event) {
+    function rechercherHebergement(event) {
       event.preventDefault();
       appliquerFiltres();
     }
 
     function getFiltresActifs() {
       const destination = normaliserTexte(document.getElementById("destination").value.trim());
-      const categorie = document.getElementById("categorie").value;
-      const dureeSelect = document.getElementById("duree").value;
-      const saison = document.getElementById("saison").value;
-      const prixMax = parseInt(document.getElementById("prixRangeInput").value, 10);
+      const type = document.getElementById("type").value;
+      const voyageurs = parseInt(document.getElementById("voyageurs").value, 10);
+      const noteMinSelect = document.getElementById("classement").value;
+      const budgetRange = parseInt(document.getElementById("prixRangeInput").value, 10);
       const tri = document.getElementById("tri").value;
 
-      const dureeMax = dureeSelect === "" ? 999 : parseInt(dureeSelect, 10);
-      const styles = Array.from(document.querySelectorAll(".style-filter:checked"))
+      const budgetMax = budgetRange;
+      const noteMin = noteMinSelect === "" ? 0 : parseFloat(noteMinSelect);
+
+      const equipements = Array.from(document.querySelectorAll(".amenity-filter:checked"))
         .map((checkbox) => checkbox.value);
 
       return {
         destination,
-        categorie,
-        dureeMax,
-        saison,
-        prixMax,
-        styles,
+        type,
+        voyageurs,
+        budgetMax,
+        noteMin,
+        equipements,
         tri
       };
     }
@@ -1178,33 +1232,33 @@
     function appliquerFiltres() {
       const filtres = getFiltresActifs();
 
-      let resultats = destinations.filter((destination) => {
-        const texteDestination = normaliserTexte(destination.nom + " " + destination.pays + " " + destination.categorie);
-        const correspondRecherche = filtres.destination === "" || texteDestination.includes(filtres.destination);
-        const correspondCategorie = filtres.categorie === "" || destination.categorie === filtres.categorie;
-        const correspondDuree = destination.duree <= filtres.dureeMax;
-        const correspondSaison = filtres.saison === "" || destination.saison === filtres.saison;
-        const correspondPrix = destination.prix <= filtres.prixMax;
-        const correspondStyles = filtres.styles.every((style) => destination.styles.includes(style));
+      let resultats = hebergements.filter((hotel) => {
+        const texteHotel = normaliserTexte(hotel.nom + " " + hotel.destination + " " + hotel.pays + " " + hotel.type);
+        const correspondDestination = filtres.destination === "" || texteHotel.includes(filtres.destination);
+        const correspondType = filtres.type === "" || hotel.type === filtres.type;
+        const correspondCapacite = hotel.capacite >= filtres.voyageurs;
+        const correspondPrix = hotel.prix <= filtres.budgetMax;
+        const correspondNote = hotel.note >= filtres.noteMin;
+        const correspondEquipements = filtres.equipements.every((equipement) => hotel.equipements.includes(equipement));
 
-        return correspondRecherche && correspondCategorie && correspondDuree && correspondSaison && correspondPrix && correspondStyles;
+        return correspondDestination && correspondType && correspondCapacite && correspondPrix && correspondNote && correspondEquipements;
       });
 
-      resultats = trierDestinations(resultats, filtres.tri);
-      afficherDestinations(resultats);
+      resultats = trierHebergements(resultats, filtres.tri);
+      afficherHebergements(resultats);
     }
 
-    function trierDestinations(liste, tri) {
+    function trierHebergements(liste, tri) {
       const resultats = [...liste];
 
       if (tri === "prix-croissant") {
         resultats.sort((a, b) => a.prix - b.prix);
       } else if (tri === "prix-decroissant") {
         resultats.sort((a, b) => b.prix - a.prix);
-      } else if (tri === "duree") {
-        resultats.sort((a, b) => a.duree - b.duree);
       } else if (tri === "note") {
         resultats.sort((a, b) => b.note - a.note);
+      } else if (tri === "capacite") {
+        resultats.sort((a, b) => b.capacite - a.capacite);
       } else {
         resultats.sort((a, b) => a.recommande - b.recommande);
       }
@@ -1212,13 +1266,13 @@
       return resultats;
     }
 
-    function afficherDestinations(liste) {
-      const destinationList = document.getElementById("destinationList");
+    function afficherHebergements(liste) {
+      const hotelList = document.getElementById("hotelList");
       const emptyResult = document.getElementById("emptyResult");
       const nombreResultats = document.getElementById("nombreResultats");
 
       nombreResultats.textContent = liste.length;
-      destinationList.innerHTML = "";
+      hotelList.innerHTML = "";
 
       if (liste.length === 0) {
         emptyResult.style.display = "block";
@@ -1227,35 +1281,40 @@
 
       emptyResult.style.display = "none";
 
-      liste.forEach((destination) => {
+      liste.forEach((hotel) => {
         const article = document.createElement("article");
-        article.className = "destination-card";
+        article.className = "hotel-card";
 
         article.innerHTML = `
-          <div class="destination-image" style="background-image: url('${destination.image}')">
-            <span class="destination-badge">${destination.categorie}</span>
-          </div>
-          <div class="destination-body">
-            <h3>${destination.nom}, ${destination.pays}</h3>
-            <p>${destination.description}</p>
-
-            <div class="destination-meta">
-              ${destination.tags.map((tag) => `<span>${tag}</span>`).join("")}
-              <span>${destination.duree} jours</span>
-              <span>Note ${destination.note.toFixed(1).replace(".", ",")}/5</span>
+          <div class="hotel-image" style="background-image: url('${hotel.image}')"></div>
+          <div class="hotel-body">
+            <div class="hotel-top">
+              <div class="hotel-title">
+                <h3>${hotel.nom}</h3>
+                <p>${hotel.description}</p>
+                <div class="rating">${hotel.etoiles} <span>${hotel.note.toFixed(1).replace(".", ",")} / 5</span></div>
+              </div>
+              <div class="hotel-price">
+                <strong>${hotel.prix} €</strong>
+                <span>par nuit</span>
+              </div>
             </div>
 
-            <div class="destination-footer">
-              <div>
-                <strong>${destination.prix} €</strong>
-                <small>à partir de</small>
+            <div class="hotel-tags">
+              ${hotel.tags.map((tag) => `<span>${tag}</span>`).join("")}
+            </div>
+
+            <div class="hotel-bottom">
+              <p class="availability">${hotel.disponibilite}</p>
+              <div class="hotel-actions">
+                <button class="secondary-btn" onclick="actionTemporaire('Voir détails ${hotel.nom}')">Voir détails</button>
+                <button class="primary-btn" onclick="actionTemporaire('Ajouter ${hotel.nom} au panier')">Ajouter au panier</button>
               </div>
-              <button class="primary-btn" onclick="actionTemporaire('Voir destination ${destination.nom}')">Voir</button>
             </div>
           </div>
         `;
 
-        destinationList.appendChild(article);
+        hotelList.appendChild(article);
       });
     }
 
@@ -1265,8 +1324,9 @@
 
     function resetFiltres() {
       document.getElementById("searchForm").reset();
-      document.getElementById("prixRangeInput").value = "2000";
-      document.getElementById("prixRange").textContent = "2000 €";
+      document.getElementById("voyageurs").value = "2";
+      document.getElementById("prixRangeInput").value = "500";
+      document.getElementById("prixRange").textContent = "500 €";
       document.getElementById("tri").value = "recommande";
     }
 
@@ -1282,7 +1342,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      afficherDestinations(trierDestinations(destinations, "recommande"));
+      afficherHebergements(trierHebergements(hebergements, "recommande"));
     });
   </script>
 </body>

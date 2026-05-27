@@ -865,7 +865,7 @@
 
       <div class="nav-links">
         <button onclick="allerDestinations()">Destinations</button>
-        <button onclick="actionTemporaire('Page transports')">Transports</button>
+        <button onclick="allerTransports()">Transports</button>
         <button class="active" onclick="allerHebergements()">Hébergements</button>
         <button onclick="actionTemporaire('Page activités')">Activités</button>
       </div>
@@ -916,7 +916,7 @@
         </div>
 
         <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
-        <button class="primary-btn" onclick="actionTemporaire('Identifiant / Connexion')">Identifiant</button>
+        <button class="primary-btn" onclick="actionTemporaire('Identifiant / Connexion')">Connexion</button>
       </div>
     </nav>
   </header>
@@ -1094,6 +1094,10 @@
   </footer>
 
   <script>
+    function allerTransports() {
+      window.location.href = "Transport.html";
+    }
+
     function allerHebergements() {
       window.location.href = "Hebergements.html";
     }
