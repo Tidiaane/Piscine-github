@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoyageVista - Panier</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    button,
+    input,
+    select {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       NAVBAR
+    ========================= */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid #e2e8f0;
+      backdrop-filter: blur(8px);
+    }
+
+    .navbar {
+      max-width: 1200px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      background: transparent;
+      text-align: left;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background: #0e7490;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .logo-title {
+      display: block;
+      color: #155e75;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .logo-subtitle {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links button {
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .nav-links button:hover,
+    .nav-links button.active {
+      background: #ecfeff;
+      color: #0e7490;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .cart-badge,
+    .notification-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid white;
+    }
+
+    .primary-btn,
+    .secondary-btn,
+    .dark-btn,
+    .danger-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      border: none;
+      background: #0e7490;
+      color: white;
+      box-shadow: 0 10px 18px rgba(14, 116, 144, 0.18);
+    }
+
+    .primary-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      background: white;
+      color: #0e7490;
+      border: 1px solid #bae6fd;
+    }
+
+    .secondary-btn:hover {
+      background: #ecfeff;
+      transform: translateY(-1px);
+    }
+
+    .dark-btn {
+      border: none;
+      background: #0f172a;
+      color: white;
+    }
+
+    .dark-btn:hover {
+      background: #1e293b;
+      transform: translateY(-1px);
+    }
+
+    .danger-btn {
+      border: 1px solid #fecaca;
+      background: #fff7f7;
+      color: #dc2626;
+    }
+
+    .danger-btn:hover {
+      background: #fee2e2;
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       NOTIFICATIONS
+    ========================= */
+    .notification-wrapper {
+      position: relative;
+    }
+
+    .notification-dropdown {
+      position: absolute;
+      top: 52px;
+      right: 0;
+      width: 330px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 22px;
+      box-shadow: 0 22px 45px rgba(15, 23, 42, 0.18);
+      padding: 14px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: 0.2s ease;
+    }
+
+    .notification-wrapper:hover .notification-dropdown {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .notification-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 8px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      margin-bottom: 8px;
+    }
+
+    .notification-header strong {
+      color: #0f172a;
+      font-size: 16px;
+    }
+
+    .notification-header span {
+      color: #0e7490;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .notification-item {
+      width: 100%;
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: none;
+      background: transparent;
+      text-align: left;
+      padding: 12px 8px;
+      border-radius: 16px;
+      transition: 0.2s;
+    }
+
+    .notification-item:hover {
+      background: #f0fdfa;
+    }
+
+    .notification-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: #ecfeff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .notification-item strong {
+      display: block;
+      color: #0f172a;
+      font-size: 14px;
+    }
+
+    .notification-item small {
+      display: block;
+      color: #64748b;
+      margin-top: 3px;
+      line-height: 1.4;
+    }
+
+    .notification-all {
+      width: 100%;
+      margin-top: 8px;
+      border: none;
+      border-radius: 999px;
+      background: #0e7490;
+      color: white;
+      padding: 11px 14px;
+      font-weight: 800;
+    }
+
+    /* =========================
+       HERO PANIER
+    ========================= */
+    .page-hero {
+      background:
+        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.72), rgba(5, 150, 105, 0.75)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80");
+      background-size: cover;
+      background-position: center;
+      color: white;
+    }
+
+    .page-hero-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 54px 24px 70px;
+      display: grid;
+      grid-template-columns: 1fr 0.75fr;
+      gap: 40px;
+      align-items: center;
+    }
+
+    .breadcrumb {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .page-hero h1 {
+      font-size: clamp(36px, 5vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+    }
+
+    .page-hero p {
+      max-width: 650px;
+      color: #ecfeff;
+      line-height: 1.7;
+      font-size: 18px;
+    }
+
+    .hero-summary-card {
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 30px;
+      padding: 18px;
+      box-shadow: 0 25px 55px rgba(15, 23, 42, 0.22);
+    }
+
+    .hero-summary-inner {
+      background: white;
+      color: #0f172a;
+      border-radius: 24px;
+      padding: 24px;
+    }
+
+    .mini-summary-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #e2e8f0;
+      color: #475569;
+      font-weight: 700;
+    }
+
+    .mini-summary-line:last-child {
+      border-bottom: none;
+    }
+
+    .mini-summary-total {
+      color: #155e75;
+      font-size: 28px;
+      font-weight: 900;
+      margin-top: 16px;
+    }
+
+    /* =========================
+       CONTENU PANIER
+    ========================= */
+    .main-container {
+      max-width: 1280px;
+      margin: auto;
+      padding: 0 24px 64px;
+    }
+
+    .cart-layout {
+      margin-top: -38px;
+      display: grid;
+      grid-template-columns: 1fr 460px;
+      gap: 24px;
+      align-items: start;
+      position: relative;
+      z-index: 5;
+    }
+
+    .cart-panel,
+    .summary-panel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 30px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+    }
+
+    .panel-header {
+      padding: 24px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .panel-header h2 {
+      font-size: 26px;
+      letter-spacing: -0.02em;
+    }
+
+    .panel-header p {
+      color: #64748b;
+      margin-top: 6px;
+      font-weight: 700;
+    }
+
+    .cart-list {
+      display: grid;
+      gap: 18px;
+      padding: 24px;
+      max-height: 620px;
+      overflow-y: auto;
+    }
+
+    .cart-item {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 18px;
+      padding: 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 24px;
+      background: #f8fafc;
+      transition: 0.2s;
+    }
+
+    .cart-item:hover {
+      background: white;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .cart-image {
+      min-height: 135px;
+      border-radius: 18px;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cart-type {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      color: #0e7490;
+      font-size: 12px;
+      font-weight: 900;
+    }
+
+    .cart-content {
+      display: grid;
+      gap: 12px;
+    }
+
+    .cart-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .cart-title h3 {
+      font-size: 21px;
+      margin-bottom: 6px;
+    }
+
+    .cart-title p {
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .cart-price {
+      text-align: right;
+      min-width: 110px;
+    }
+
+    .cart-price strong {
+      display: block;
+      color: #155e75;
+      font-size: 24px;
+    }
+
+    .cart-price span {
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .cart-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .cart-tags span {
+      border-radius: 999px;
+      background: #ecfeff;
+      color: #0e7490;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .cart-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+    }
+
+    .quantity-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 999px;
+      padding: 6px;
+    }
+
+    .quantity-control button {
+      width: 32px;
+      height: 32px;
+      border: none;
+      border-radius: 50%;
+      background: #ecfeff;
+      color: #0e7490;
+      font-size: 18px;
+      font-weight: 900;
+    }
+
+    .quantity-control span {
+      min-width: 20px;
+      text-align: center;
+      font-weight: 900;
+    }
+
+    .item-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .small-btn {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 13px;
+      font-weight: 900;
+      transition: 0.2s;
+    }
+
+    .small-btn.info {
+      background: #ecfeff;
+      color: #0e7490;
+    }
+
+    .small-btn.remove {
+      background: #fff7f7;
+      color: #dc2626;
+      border: 1px solid #fecaca;
+    }
+
+    .small-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .summary-panel {
+      position: sticky;
+      top: 96px;
+      overflow: hidden;
+    }
+
+    .summary-body {
+      padding: 24px;
+      display: grid;
+      gap: 18px;
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      color: #475569;
+      font-weight: 800;
+    }
+
+    .summary-line.discount {
+      color: #059669;
+    }
+
+    .summary-total {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding-top: 18px;
+      border-top: 1px solid #e2e8f0;
+      color: #0f172a;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .promo-box {
+      margin-top: 4px;
+      padding: 18px;
+      border-radius: 24px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .promo-box label {
+      display: block;
+      color: #475569;
+      font-size: 13px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .promo-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .promo-row input {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      padding: 12px 13px;
+      outline: none;
+      font-size: 15px;
+    }
+
+    .promo-row input:focus {
+      border-color: #0891b2;
+      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
+    }
+
+    .promo-message {
+      display: none;
+      margin-top: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .promo-message.success {
+      display: block;
+      color: #059669;
+    }
+
+    .promo-message.error {
+      display: block;
+      color: #dc2626;
+    }
+
+    .checkout-actions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .checkout-actions button {
+      width: 100%;
+    }
+
+    .secure-box {
+      display: grid;
+      gap: 8px;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .empty-cart {
+      display: none;
+      padding: 46px 24px;
+      text-align: center;
+      color: #64748b;
+    }
+
+    .empty-cart strong {
+      display: block;
+      color: #0f172a;
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .empty-cart p {
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .status-box {
+      display: none;
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .status-box.success {
+      display: block;
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #a7f3d0;
+    }
+
+    .status-box.error {
+      display: block;
+      background: #fef2f2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+    }
+
+    footer {
+      border-top: 1px solid #e2e8f0;
+      background: white;
+      padding: 28px 24px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #64748b;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .footer-links button {
+      border: none;
+      background: transparent;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .footer-links button:hover {
+      color: #0e7490;
+    }
+
+    @media (max-width: 980px) {
+      .nav-links {
+        display: none;
+      }
+
+      .page-hero-container,
+      .cart-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-panel {
+        position: static;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .navbar,
+      .footer-content,
+      .panel-header,
+      .cart-top,
+      .cart-bottom {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .navbar {
+        align-items: flex-start;
+      }
+
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .page-hero-container {
+        padding: 44px 18px 64px;
+      }
+
+      .main-container {
+        padding: 0 18px 48px;
+      }
+
+      .cart-item {
+        grid-template-columns: 1fr;
+      }
+
+      .cart-price {
+        text-align: left;
+      }
+
+      .item-actions {
+        justify-content: stretch;
+      }
+
+      .item-actions button,
+      .promo-row button {
+        width: 100%;
+      }
+
+      .promo-row {
+        flex-direction: column;
+      }
+
+      .notification-dropdown {
+        right: -80px;
+        width: 300px;
+      }
+    }
+  </style>
+</head>
+
+<body id="haut-page">
+  <header>
+    <nav class="navbar">
+      <button class="logo" onclick="window.location.href='Acceuil.html'">
+        <span class="logo-icon">VV</span>
+        <span>
+          <span class="logo-title">VoyageVista</span>
+          <span class="logo-subtitle">Planifiez. Explorez. Vivez.</span>
+        </span>
+      </button>
+
+      <div class="nav-links">
+        <button onclick="window.location.href='Destination.html'">Destinations</button>
+        <button onclick="window.location.href='Transport.html'">Transports</button>
+        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
+        <button onclick="window.location.href='Activites.html'">Activités</button>
+      </div>
+
+      <div class="nav-actions">
+        <button class="secondary-btn" onclick="window.location.href='Destination.html'">Recherche</button>
+
+        <div class="notification-wrapper">
+          <button class="icon-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
+            🔔
+            <span class="notification-badge">3</span>
+          </button>
+
+          <div class="notification-dropdown">
+            <div class="notification-header">
+              <strong>Notifications</strong>
+              <span>3 nouvelles</span>
+            </div>
+
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
+              <span class="notification-icon">✅</span>
+              <span>
+                <strong>Panier mis à jour</strong>
+                <small>Votre sélection de voyage est sauvegardée.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
+              <span class="notification-icon">💸</span>
+              <span>
+                <strong>Code promo disponible</strong>
+                <small>Essayez VOYAGE10 ou ETE15 dans votre panier.</small>
+              </span>
+            </button>
+
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
+              <span class="notification-icon">🔐</span>
+              <span>
+                <strong>Connexion recommandée</strong>
+                <small>Connectez-vous avant le paiement.</small>
+              </span>
+            </button>
+
+            <button class="notification-all" onclick="window.location.href='Notifications.html'">
+              Voir toutes les notifications
+            </button>
+          </div>
+        </div>
+
+        <button class="icon-btn active" onclick="window.location.href='Panier.html'" aria-label="Panier">
+          🛒
+          <span id="cartBadge" class="cart-badge">0</span>
+        </button>
+        <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="page-hero-container">
+        <div>
+          <div class="breadcrumb">VoyageVista &gt; Panier</div>
+          <h1>Mon panier de voyage</h1>
+          <p>
+            Vérifiez votre sélection avant validation : destination, transport,
+            hébergement et activités. Vous pouvez ajuster les quantités, supprimer des éléments
+            ou appliquer un code de réduction.
+          </p>
+        </div>
+
+        <div class="hero-summary-card">
+          <div class="hero-summary-inner">
+            <h2>Résumé rapide</h2>
+            <div class="mini-summary-line">
+              <span>Éléments</span>
+              <strong id="miniItems">0</strong>
+            </div>
+            <div class="mini-summary-line">
+              <span>Réduction</span>
+              <strong id="miniDiscount">0 €</strong>
+            </div>
+            <div class="mini-summary-total" id="miniTotal">0 €</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-container">
+      <div class="cart-layout">
+        <section class="cart-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Votre sélection</h2>
+              <p><span id="cartItemCount">0</span> élément(s) dans le panier</p>
+            </div>
+            <button class="danger-btn" onclick="viderPanier()">Vider le panier</button>
+          </div>
+
+          <div id="cartList" class="cart-list"></div>
+
+          <div id="emptyCart" class="empty-cart">
+            <strong>Votre panier est vide</strong>
+            <p>Ajoutez une destination, un transport, un hébergement ou une activité pour construire votre voyage.</p>
+            <button class="primary-btn" onclick="window.location.href='Destination.html'">Explorer les destinations</button>
+          </div>
+        </section>
+
+        <aside class="summary-panel">
+          <div class="panel-header">
+            <div>
+              <h2>Récapitulatif</h2>
+              <p>Prix estimé du séjour</p>
+            </div>
+          </div>
+
+          <div class="summary-body">
+            <div class="summary-line">
+              <span>Sous-total</span>
+              <strong id="subtotalAmount">0 €</strong>
+            </div>
+            <div class="summary-line">
+              <span>Frais de dossier</span>
+              <strong id="feesAmount">0 €</strong>
+            </div>
+            <div class="summary-line discount">
+              <span>Réduction</span>
+              <strong id="discountAmount">0 €</strong>
+            </div>
+
+            <div class="promo-box">
+              <label for="promoCode">Code de réduction</label>
+              <div class="promo-row">
+                <input id="promoCode" type="text" placeholder="Ex : VOYAGE10" />
+                <button class="secondary-btn" onclick="appliquerCodePromo()" type="button">Appliquer</button>
+              </div>
+              <div id="promoMessage" class="promo-message"></div>
+            </div>
+
+            <div class="summary-total">
+              <span>Total</span>
+              <strong id="totalAmount">0 €</strong>
+            </div>
+
+            <div class="checkout-actions">
+              <button class="primary-btn" onclick="payer()">Payer</button>
+              <button class="secondary-btn" onclick="window.location.href='Destination.html'">Continuer mes achats</button>
+            </div>
+
+            <div id="statusBox" class="status-box"></div>
+
+            <div class="secure-box">
+              <span>🔐 Paiement simulé sécurisé</span>
+              <span>🧾 Le détail de la réservation sera vérifié avant validation finale.</span>
+              <span>💡 Codes test : <strong>VOYAGE10</strong> ou <strong>ETE15</strong></span>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>© 2026 VoyageVista — Projet Web dynamique</p>
+      <div class="footer-links">
+        <button onclick="window.location.href='Aide.html'">Aide</button>
+        <button onclick="window.location.href='Conditions.html'">Conditions</button>
+        <button onclick="window.location.href='Contact.html'">Contact</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    const panierParDefaut = [
+      {
+        id: 1,
+        type: "Destination",
+        titre: "Bali, Indonésie",
+        description: "Séjour tropical avec plages, rizières et activités culturelles.",
+        prix: 899,
+        quantite: 1,
+        image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80",
+        tags: ["7 jours", "Plage", "Détente"]
+      },
+      {
+        id: 2,
+        type: "Transport",
+        titre: "Vol Paris → Bali",
+        description: "Trajet aller-retour avec bagage inclus et assistance voyage.",
+        prix: 789,
+        quantite: 2,
+        image: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=900&q=80",
+        tags: ["Avion", "Bagage inclus", "2 voyageurs"]
+      },
+      {
+        id: 3,
+        type: "Hébergement",
+        titre: "The Kayon Resort",
+        description: "Resort calme avec piscine, petit-déjeuner et annulation gratuite.",
+        prix: 125,
+        quantite: 3,
+        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=900&q=80",
+        tags: ["Resort", "Piscine", "3 nuits"]
+      },
+      {
+        id: 4,
+        type: "Activité",
+        titre: "Randonnée dans les rizières",
+        description: "Balade guidée dans les rizières avec découverte des traditions locales.",
+        prix: 45,
+        quantite: 2,
+        image: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=900&q=80",
+        tags: ["Nature", "Guide", "Famille"]
+      }
+    ];
+
+    let panier = [];
+    let reduction = 0;
+    let codeActif = "";
+
+    function chargerPanier() {
+      const panierSauvegarde = localStorage.getItem("voyageVistaCart");
+
+      if (panierSauvegarde) {
+        panier = JSON.parse(panierSauvegarde);
+      } else {
+        panier = panierParDefaut;
+        sauvegarderPanier();
+      }
+    }
+
+    function sauvegarderPanier() {
+      localStorage.setItem("voyageVistaCart", JSON.stringify(panier));
+    }
+
+    function formatPrix(montant) {
+      return montant.toLocaleString("fr-FR") + " €";
+    }
+
+    function calculerSousTotal() {
+      return panier.reduce((total, item) => total + item.prix * item.quantite, 0);
+    }
+
+    function calculerFrais(sousTotal) {
+      return sousTotal > 0 ? 19 : 0;
+    }
+
+    function afficherPanier() {
+      const cartList = document.getElementById("cartList");
+      const emptyCart = document.getElementById("emptyCart");
+      const cartItemCount = document.getElementById("cartItemCount");
+      const cartBadge = document.getElementById("cartBadge");
+
+      const nombreElements = panier.reduce((total, item) => total + item.quantite, 0);
+      cartItemCount.textContent = nombreElements;
+      cartBadge.textContent = nombreElements;
+      cartList.innerHTML = "";
+
+      if (panier.length === 0) {
+        cartList.style.display = "none";
+        emptyCart.style.display = "block";
+      } else {
+        cartList.style.display = "grid";
+        emptyCart.style.display = "none";
+      }
+
+      panier.forEach((item) => {
+        const article = document.createElement("article");
+        article.className = "cart-item";
+
+        article.innerHTML = `
+          <div class="cart-image" style="background-image: url('${item.image}')">
+            <span class="cart-type">${item.type}</span>
+          </div>
+
+          <div class="cart-content">
+            <div class="cart-top">
+              <div class="cart-title">
+                <h3>${item.titre}</h3>
+                <p>${item.description}</p>
+              </div>
+              <div class="cart-price">
+                <strong>${formatPrix(item.prix * item.quantite)}</strong>
+                <span>${formatPrix(item.prix)} / unité</span>
+              </div>
+            </div>
+
+            <div class="cart-tags">
+              ${item.tags.map((tag) => `<span>${tag}</span>`).join("")}
+            </div>
+
+            <div class="cart-bottom">
+              <div class="quantity-control">
+                <button onclick="changerQuantite(${item.id}, -1)" type="button">−</button>
+                <span>${item.quantite}</span>
+                <button onclick="changerQuantite(${item.id}, 1)" type="button">+</button>
+              </div>
+
+              <div class="item-actions">
+                <button class="small-btn info" onclick="ouvrirPageCategorie('${item.type}')" type="button">Modifier</button>
+                <button class="small-btn remove" onclick="supprimerElement(${item.id})" type="button">Supprimer</button>
+              </div>
+            </div>
+          </div>
+        `;
+
+        cartList.appendChild(article);
+      });
+
+      mettreAJourResume();
+    }
+
+    function mettreAJourResume() {
+      const sousTotal = calculerSousTotal();
+      const frais = calculerFrais(sousTotal);
+      const totalAvantReduction = sousTotal + frais;
+      const montantReduction = Math.round(totalAvantReduction * reduction);
+      const total = Math.max(totalAvantReduction - montantReduction, 0);
+      const nombreElements = panier.reduce((totalItems, item) => totalItems + item.quantite, 0);
+
+      document.getElementById("subtotalAmount").textContent = formatPrix(sousTotal);
+      document.getElementById("feesAmount").textContent = formatPrix(frais);
+      document.getElementById("discountAmount").textContent = "- " + formatPrix(montantReduction);
+      document.getElementById("totalAmount").textContent = formatPrix(total);
+
+      document.getElementById("miniItems").textContent = nombreElements;
+      document.getElementById("miniDiscount").textContent = "- " + formatPrix(montantReduction);
+      document.getElementById("miniTotal").textContent = formatPrix(total);
+    }
+
+    function changerQuantite(id, variation) {
+      panier = panier.map((item) => {
+        if (item.id === id) {
+          return {
+            ...item,
+            quantite: Math.max(item.quantite + variation, 1)
+          };
+        }
+        return item;
+      });
+
+      sauvegarderPanier();
+      afficherPanier();
+    }
+
+    function supprimerElement(id) {
+      panier = panier.filter((item) => item.id !== id);
+      sauvegarderPanier();
+      afficherPanier();
+      afficherStatus("Élément supprimé du panier.", "success");
+    }
+
+    function viderPanier() {
+      if (panier.length === 0) {
+        afficherStatus("Le panier est déjà vide.", "error");
+        return;
+      }
+
+      if (confirm("Voulez-vous vraiment vider le panier ?")) {
+        panier = [];
+        reduction = 0;
+        codeActif = "";
+        document.getElementById("promoCode").value = "";
+        afficherPromo("", "");
+        sauvegarderPanier();
+        afficherPanier();
+        afficherStatus("Le panier a été vidé.", "success");
+      }
+    }
+
+    function appliquerCodePromo() {
+      const code = document.getElementById("promoCode").value.trim().toUpperCase();
+
+      if (code === "VOYAGE10") {
+        reduction = 0.10;
+        codeActif = code;
+        afficherPromo("Code VOYAGE10 appliqué : -10% sur le panier.", "success");
+      } else if (code === "ETE15") {
+        reduction = 0.15;
+        codeActif = code;
+        afficherPromo("Code ETE15 appliqué : -15% sur le panier.", "success");
+      } else if (code === "") {
+        reduction = 0;
+        codeActif = "";
+        afficherPromo("Saisissez un code de réduction.", "error");
+      } else {
+        reduction = 0;
+        codeActif = "";
+        afficherPromo("Code invalide. Essayez VOYAGE10 ou ETE15.", "error");
+      }
+
+      mettreAJourResume();
+    }
+
+    function afficherPromo(message, type) {
+      const promoMessage = document.getElementById("promoMessage");
+      promoMessage.textContent = message;
+      promoMessage.className = "promo-message";
+
+      if (type) {
+        promoMessage.classList.add(type);
+      }
+    }
+
+    function ouvrirPageCategorie(type) {
+      if (type === "Destination") {
+        window.location.href = "Destination.html";
+      } else if (type === "Transport") {
+        window.location.href = "Transport.html";
+      } else if (type === "Hébergement") {
+        window.location.href = "Hebergements.html";
+      } else if (type === "Activité") {
+        window.location.href = "Activites.html";
+      }
+    }
+
+    function payer() {
+      if (panier.length === 0) {
+        afficherStatus("Impossible de payer : le panier est vide.", "error");
+        return;
+      }
+
+      localStorage.setItem("voyageVistaLastDiscount", codeActif);
+      afficherStatus("Redirection vers la page de paiement...", "success");
+
+      setTimeout(function () {
+        window.location.href = "Paiement.html";
+      }, 900);
+    }
+
+    function afficherStatus(message, type) {
+      const statusBox = document.getElementById("statusBox");
+      statusBox.textContent = message;
+      statusBox.className = "status-box " + type;
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      chargerPanier();
+      afficherPanier();
+    });
+  </script>
+</body>
+</html>
