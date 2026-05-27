@@ -711,10 +711,10 @@
       </button>
 
       <div class="nav-links">
-        <button onclick="allerDestinations()">Destinations</button>
-        <button onclick="allerTransports()">Transports</button>
+        <button onclick="actionTemporaire('Page destinations')">Destinations</button>
+        <button onclick="window.location.href='Transport.html'">Transports</button>
         <button onclick="allerHebergements()">Hébergements</button>
-        <button onclick="actionTemporaire('Page activités')">Activités</button>
+        <button onclick="window.location.href='Activites.html'">Activités</button>
       </div>
 
       <div class="nav-actions">
@@ -812,13 +812,13 @@
       </div>
 
       <div class="service-grid">
-        <button class="service-card" onclick="allerDestinations()">
+        <button class="service-card" onclick="actionTemporaire('Ouvrir Destinations')">
           <span class="service-icon">🌍</span>
           <h3>Destinations</h3>
           <p>Explorer les pays, villes et séjours proposés.</p>
         </button>
 
-        <button class="service-card" onclick="allerTransports()">
+        <button class="service-card" onclick="actionTemporaire('Ouvrir Transports')">
           <span class="service-icon">✈️</span>
           <h3>Transports</h3>
           <p>Comparer avion, train, bus ou voiture.</p>
@@ -844,7 +844,7 @@
           <p>Catalogue</p>
           <h2>Destinations populaires</h2>
         </div>
-        <button class="secondary-btn" onclick="allerDestinations()">Explorer le catalogue</button>
+        <button class="secondary-btn" onclick="actionTemporaire('Catalogue complet')">Explorer le catalogue</button>
       </div>
 
       <div class="destination-grid">
@@ -855,7 +855,7 @@
             <p>Plages, détente et paysages tropicaux.</p>
             <div class="destination-footer">
               <strong>À partir de 899 €</strong>
-              <button class="primary-btn" onclick="allerDestinations()">Voir</button>
+              <button class="primary-btn" onclick="actionTemporaire('Voir destination Bali')">Voir</button>
             </div>
           </div>
         </article>
@@ -867,7 +867,7 @@
             <p>Montagnes, randonnées et activités sportives.</p>
             <div class="destination-footer">
               <strong>À partir de 749 €</strong>
-              <button class="primary-btn" onclick="allerDestinations()">Voir</button>
+              <button class="primary-btn" onclick="actionTemporaire('Voir destination Interlaken')">Voir</button>
             </div>
           </div>
         </article>
@@ -879,7 +879,7 @@
             <p>Culture, soleil et découverte historique.</p>
             <div class="destination-footer">
               <strong>À partir de 529 €</strong>
-              <button class="primary-btn" onclick="allerDestinations()">Voir</button>
+              <button class="primary-btn" onclick="actionTemporaire('Voir destination Athènes')">Voir</button>
             </div>
           </div>
         </article>
@@ -931,14 +931,6 @@
   </footer>
 
   <script>
-    function allerTransports() {
-      window.location.href = "Transport.html";
-    }
-
-    function allerDestinations() {
-      window.location.href = "Destination.html";
-    }
-
     function allerHebergements() {
       window.location.href = "Hebergements.html";
     }

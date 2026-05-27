@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VoyageVista - Hébergements</title>
+  <title>VoyageVista - Activités</title>
 
   <style>
     * {
@@ -183,7 +183,7 @@
     }
 
     /* =========================
-       NOTIFICATIONS AU SURVOL
+       NOTIFICATIONS
     ========================= */
     .notification-wrapper {
       position: relative;
@@ -305,11 +305,11 @@
     }
 
     /* =========================
-       HERO PAGE
+       HERO
     ========================= */
     .page-hero {
       background:
-        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.76), rgba(5, 150, 105, 0.78)),
+        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.75), rgba(5, 150, 105, 0.72)),
         url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80");
       background-size: cover;
       background-position: center;
@@ -395,7 +395,7 @@
 
     .hero-panel-image {
       height: 220px;
-      background-image: url("https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1100&q=80");
+      background-image: url("https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1100&q=80");
       background-size: cover;
       background-position: center;
     }
@@ -411,7 +411,7 @@
     }
 
     /* =========================
-       CONTENU PRINCIPAL
+       FILTRES
     ========================= */
     .main-container {
       max-width: 1200px;
@@ -444,7 +444,7 @@
 
     .filters-grid {
       display: grid;
-      grid-template-columns: 1.2fr 1fr 1fr;
+      grid-template-columns: 1.2fr 1fr 1fr 1fr;
       gap: 14px;
       align-items: end;
     }
@@ -500,7 +500,7 @@
 
     .check-list {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
@@ -554,12 +554,26 @@
       min-width: 170px;
     }
 
+    /* =========================
+       RESULTATS
+    ========================= */
     .results-header {
       margin-top: 42px;
       display: flex;
       align-items: end;
       justify-content: space-between;
       gap: 20px;
+    }
+
+    .results-header p {
+      color: #0e7490;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .results-header h2 {
+      font-size: 32px;
+      letter-spacing: -0.02em;
     }
 
     .sort-box {
@@ -584,137 +598,102 @@
       background: white;
     }
 
-    .sort-box select:focus {
-      border-color: #0891b2;
-      box-shadow: 0 0 0 3px rgba(8, 145, 178, 0.12);
-    }
-
-    .results-header p {
-      color: #0e7490;
-      font-weight: 800;
-      margin-bottom: 8px;
-    }
-
-    .results-header h2 {
-      font-size: 32px;
-      letter-spacing: -0.02em;
-    }
-
-    .hotel-list {
+    .activity-list {
       margin-top: 24px;
       display: grid;
-      gap: 20px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
     }
 
-    .hotel-card {
-      display: grid;
-      grid-template-columns: 260px 1fr;
+    .activity-card {
+      overflow: hidden;
       background: white;
       border: 1px solid #e2e8f0;
-      border-radius: 26px;
-      overflow: hidden;
+      border-radius: 28px;
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
       transition: 0.2s;
     }
 
-    .hotel-card:hover {
-      transform: translateY(-3px);
+    .activity-card:hover {
+      transform: translateY(-4px);
       box-shadow: 0 18px 38px rgba(15, 23, 42, 0.10);
     }
 
-    .hotel-image {
-      min-height: 230px;
+    .activity-image {
+      height: 220px;
       background-size: cover;
       background-position: center;
+      position: relative;
     }
 
-    .hotel-body {
-      padding: 22px;
-      display: grid;
-      gap: 16px;
-    }
-
-    .hotel-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .hotel-title h3 {
-      font-size: 23px;
-      margin-bottom: 7px;
-    }
-
-    .hotel-title p {
-      color: #64748b;
-      line-height: 1.5;
-    }
-
-    .rating {
-      display: inline-flex;
-      gap: 5px;
-      align-items: center;
-      margin-top: 10px;
-      color: #f59e0b;
-      font-weight: 800;
-    }
-
-    .hotel-price {
-      text-align: right;
-      min-width: 130px;
-    }
-
-    .hotel-price strong {
-      display: block;
-      color: #155e75;
-      font-size: 26px;
-    }
-
-    .hotel-price span {
-      color: #64748b;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .hotel-tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    .hotel-tags span {
+    .activity-badge {
+      position: absolute;
+      left: 16px;
+      top: 16px;
       border-radius: 999px;
-      background: #ecfeff;
+      background: rgba(255, 255, 255, 0.92);
       color: #0e7490;
       padding: 7px 11px;
       font-size: 13px;
       font-weight: 800;
     }
 
-    .hotel-bottom {
+    .activity-body {
+      padding: 22px;
+    }
+
+    .activity-body h3 {
+      font-size: 22px;
+      margin-bottom: 8px;
+    }
+
+    .activity-body p {
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .activity-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 15px;
+    }
+
+    .activity-meta span {
+      border-radius: 999px;
+      background: #ecfeff;
+      color: #0e7490;
+      padding: 7px 10px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .activity-footer {
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #e2e8f0;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 16px;
     }
 
-    .availability {
-      color: #059669;
-      font-weight: 800;
-      font-size: 14px;
+    .activity-footer strong {
+      display: block;
+      color: #155e75;
+      font-size: 22px;
     }
 
-    .hotel-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
+    .activity-footer small {
+      display: block;
+      color: #64748b;
+      font-weight: 700;
+      margin-top: 2px;
     }
 
     .empty-result {
       display: none;
+      margin-top: 24px;
       background: white;
       border: 1px dashed #cbd5e1;
       border-radius: 24px;
@@ -779,7 +758,6 @@
       }
 
       .page-hero-container,
-      .hotel-card,
       .filter-panel {
         grid-template-columns: 1fr;
       }
@@ -788,15 +766,18 @@
       .advanced-filters {
         grid-template-columns: repeat(2, 1fr);
       }
+
+      .activity-list {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
 
     @media (max-width: 640px) {
       .navbar,
       .results-header,
       .footer-content,
-      .hotel-top,
-      .hotel-bottom,
-      .search-title-line {
+      .search-title-line,
+      .activity-footer {
         flex-direction: column;
         align-items: stretch;
       }
@@ -822,25 +803,19 @@
       .filters-grid,
       .advanced-filters,
       .hero-stats,
-      .check-list {
+      .check-list,
+      .activity-list {
         grid-template-columns: 1fr;
       }
 
-      .hotel-card {
-        grid-template-columns: 1fr;
-      }
-
-      .hotel-price {
-        text-align: left;
-      }
-
-      .hotel-actions,
-      .filter-actions {
+      .filter-actions,
+      .back-top-zone {
         justify-content: stretch;
       }
 
-      .hotel-actions button,
-      .filter-actions button {
+      .filter-actions button,
+      .back-top-zone button,
+      .activity-footer button {
         width: 100%;
       }
 
@@ -864,17 +839,17 @@
       </button>
 
       <div class="nav-links">
-        <button onclick="allerDestinations()">Destinations</button>
-        <button onclick="allerTransports()">Transports</button>
-        <button class="active" onclick="allerHebergements()">Hébergements</button>
-        <button onclick="window.location.href='Activites.html'">Activités</button>
+        <button onclick="window.location.href='Destination.html'">Destinations</button>
+        <button onclick="window.location.href='Transport.html'">Transports</button>
+        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
+        <button class="active" onclick="window.location.href='Activites.html'">Activités</button>
       </div>
 
       <div class="nav-actions">
         <button class="secondary-btn" onclick="allerAuxFiltres()">Recherche</button>
 
         <div class="notification-wrapper">
-          <button class="icon-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">
+          <button class="icon-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
             🔔
             <span class="notification-badge">3</span>
           </button>
@@ -885,38 +860,38 @@
               <span>3 nouvelles</span>
             </div>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : réservation confirmée')">
-              <span class="notification-icon">✅</span>
+            <button class="notification-item" onclick="actionTemporaire('Notification : activité ajoutée')">
+              <span class="notification-icon">🎒</span>
               <span>
-                <strong>Réservation confirmée</strong>
-                <small>Votre hébergement a bien été ajouté.</small>
+                <strong>Activité ajoutée</strong>
+                <small>Votre excursion a été ajoutée au panier.</small>
               </span>
             </button>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : disponibilité')">
-              <span class="notification-icon">🏨</span>
+            <button class="notification-item" onclick="actionTemporaire('Notification : places limitées')">
+              <span class="notification-icon">⚠️</span>
               <span>
-                <strong>Disponibilité limitée</strong>
-                <small>Plus que 2 chambres pour The Kayon Resort.</small>
+                <strong>Places limitées</strong>
+                <small>Plus que 4 places pour la randonnée guidée.</small>
               </span>
             </button>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : offre spéciale')">
-              <span class="notification-icon">💸</span>
+            <button class="notification-item" onclick="actionTemporaire('Notification : nouvelle expérience')">
+              <span class="notification-icon">✨</span>
               <span>
-                <strong>Offre spéciale</strong>
-                <small>-15% sur certains hôtels à Bali.</small>
+                <strong>Nouvelle expérience</strong>
+                <small>Une activité culturelle vient d'être ajoutée.</small>
               </span>
             </button>
 
-            <button class="notification-all" onclick="actionTemporaire('Voir toutes les notifications')">
+            <button class="notification-all" onclick="window.location.href='Notifications.html'">
               Voir toutes les notifications
             </button>
           </div>
         </div>
 
-        <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
-        <button class="primary-btn" onclick="actionTemporaire('Identifiant / Connexion')">Connexion</button>
+        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">🛒</button>
+        <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
       </div>
     </nav>
   </header>
@@ -925,21 +900,21 @@
     <section class="page-hero">
       <div class="page-hero-container">
         <div>
-          <div class="breadcrumb">VoyageVista &gt; Hébergements</div>
-          <h1>Trouvez l’hébergement idéal pour votre voyage</h1>
+          <div class="breadcrumb">VoyageVista &gt; Activités</div>
+          <h1>Activités et organisation des expériences</h1>
           <p>
-            Comparez des hôtels, villas, appartements et resorts sélectionnés pour construire
-            un séjour confortable, adapté à votre budget et à votre façon de voyager.
+            Ajoutez des visites, excursions, activités sportives ou expériences culturelles
+            pour personnaliser votre voyage selon vos envies.
           </p>
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <strong>120+</strong>
-              <span>logements sélectionnés</span>
+              <strong>60+</strong>
+              <span>activités proposées</span>
             </div>
             <div class="hero-stat">
-              <strong>35</strong>
-              <span>destinations</span>
+              <strong>15</strong>
+              <span>catégories d’expérience</span>
             </div>
             <div class="hero-stat">
               <strong>24h/7j</strong>
@@ -952,8 +927,8 @@
           <div class="hero-panel-inner">
             <div class="hero-panel-image"></div>
             <div class="hero-panel-body">
-              <h2>Séjours confort, détente ou aventure</h2>
-              <p>Choisissez un hébergement adapté à votre destination, puis ajoutez-le à votre panier de voyage.</p>
+              <h2>Construisez un séjour qui vous ressemble</h2>
+              <p>Choisissez vos expériences, vérifiez les places disponibles et ajoutez-les à votre panier.</p>
             </div>
           </div>
         </div>
@@ -961,7 +936,7 @@
     </section>
 
     <section class="main-container">
-      <form id="searchForm" class="search-card" onsubmit="rechercherHebergement(event)">
+      <form id="searchForm" class="search-card" onsubmit="rechercherActivite(event)">
         <div class="search-title-line">
           <h2>Filtres de recherche</h2>
           <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser les champs</button>
@@ -970,52 +945,68 @@
         <div class="filters-grid">
           <div class="field">
             <label for="destination">Destination</label>
-            <input id="destination" type="text" placeholder="Ex : Bali, Paris, Athènes" />
+            <input id="destination" type="text" placeholder="Ex : Bali, Athènes, Interlaken" />
           </div>
 
           <div class="field">
-            <label for="arrivee">Date d'arrivée</label>
-            <input id="arrivee" type="date" />
+            <label for="dateActivite">Date souhaitée</label>
+            <input id="dateActivite" type="date" />
           </div>
 
           <div class="field">
-            <label for="depart">Date de départ</label>
-            <input id="depart" type="date" />
+            <label for="categorie">Catégorie</label>
+            <select id="categorie">
+              <option value="">Toutes</option>
+              <option value="culture">Culture</option>
+              <option value="sport">Sport</option>
+              <option value="nature">Nature</option>
+              <option value="detente">Détente</option>
+              <option value="gastronomie">Gastronomie</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="participants">Participants</label>
+            <select id="participants">
+              <option value="1">1 participant</option>
+              <option value="2" selected>2 participants</option>
+              <option value="3">3 participants</option>
+              <option value="4">4 participants</option>
+              <option value="5">5 participants ou plus</option>
+            </select>
           </div>
         </div>
 
         <div class="advanced-filters">
           <div class="field">
-            <label for="type">Type</label>
-            <select id="type">
+            <label for="niveau">Niveau</label>
+            <select id="niveau">
               <option value="">Tous</option>
-              <option value="hotel">Hôtel</option>
-              <option value="villa">Villa</option>
-              <option value="appartement">Appartement</option>
-              <option value="resort">Resort</option>
+              <option value="facile">Facile</option>
+              <option value="moyen">Moyen</option>
+              <option value="sportif">Sportif</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="voyageurs">Voyageurs</label>
-            <select id="voyageurs">
-              <option value="1">1 voyageur</option>
-              <option value="2" selected>2 voyageurs</option>
-              <option value="3">3 voyageurs</option>
-              <option value="4">4 voyageurs</option>
-              <option value="5">5 voyageurs ou plus</option>
-            </select>
-          </div>
-
-
-          <div class="field">
-            <label for="classement">Note minimum</label>
-            <select id="classement">
+            <label for="dureeMax">Durée maximum</label>
+            <select id="dureeMax">
               <option value="">Toutes</option>
-              <option value="3">3 étoiles et +</option>
-              <option value="4">4 étoiles et +</option>
-              <option value="4.5">4,5 étoiles et +</option>
-              <option value="5">5 étoiles</option>
+              <option value="2">2 h max</option>
+              <option value="4">4 h max</option>
+              <option value="8">8 h max</option>
+              <option value="12">12 h max</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="moment">Moment</label>
+            <select id="moment">
+              <option value="">Tous</option>
+              <option value="matin">Matin</option>
+              <option value="apres-midi">Après-midi</option>
+              <option value="soir">Soir</option>
+              <option value="journee">Journée complète</option>
             </select>
           </div>
         </div>
@@ -1024,24 +1015,24 @@
           <div class="filter-block">
             <h3>Options</h3>
             <div class="check-list">
-              <label><input class="amenity-filter" type="checkbox" value="piscine" /> Piscine</label>
-              <label><input class="amenity-filter" type="checkbox" value="petit-dejeuner" /> Petit-déjeuner inclus</label>
-              <label><input class="amenity-filter" type="checkbox" value="annulation" /> Annulation gratuite</label>
-              <label><input class="amenity-filter" type="checkbox" value="centre" /> Proche du centre</label>
-              <label><input class="amenity-filter" type="checkbox" value="wifi" /> Wi-Fi inclus</label>
+              <label><input class="option-filter" type="checkbox" value="guide" /> Guide inclus</label>
+              <label><input class="option-filter" type="checkbox" value="famille" /> Adapté famille</label>
+              <label><input class="option-filter" type="checkbox" value="repas" /> Repas inclus</label>
+              <label><input class="option-filter" type="checkbox" value="transport" /> Transport inclus</label>
+              <label><input class="option-filter" type="checkbox" value="exterieur" /> En extérieur</label>
+              <label><input class="option-filter" type="checkbox" value="annulation" /> Annulation possible</label>
             </div>
           </div>
 
           <div class="filter-block">
-            <h3>Prix par nuit</h3>
-            <input id="prixRangeInput" type="range" min="50" max="500" value="500" oninput="changerPrix(this.value)" />
+            <h3>Prix maximum</h3>
+            <input id="prixRangeInput" type="range" min="10" max="300" value="300" oninput="changerPrix(this.value)" />
             <div class="range-value">
-              <span>50 €</span>
-              <span id="prixRange">500 €</span>
-              <span>500 €</span>
+              <span>10 €</span>
+              <span id="prixRange">300 €</span>
+              <span>300 €</span>
             </div>
           </div>
-
         </div>
 
         <div class="filter-actions">
@@ -1052,26 +1043,27 @@
       <div class="results-header">
         <div>
           <p>Résultats de recherche</p>
-          <h2><span id="nombreResultats">0</span> hébergement(s) disponible(s)</h2>
+          <h2><span id="nombreResultats">0</span> activité(s) disponible(s)</h2>
         </div>
 
         <div class="sort-box">
           <label for="tri">Trier par</label>
-          <select id="tri">
+          <select id="tri" onchange="appliquerFiltres()">
             <option value="recommande">Recommandé</option>
             <option value="prix-croissant">Prix croissant</option>
             <option value="prix-decroissant">Prix décroissant</option>
+            <option value="duree">Durée la plus courte</option>
             <option value="note">Meilleure note</option>
-            <option value="capacite">Capacité</option>
+            <option value="places">Places disponibles</option>
           </select>
         </div>
       </div>
 
       <section>
-        <div id="hotelList" class="hotel-list"></div>
+        <div id="activityList" class="activity-list"></div>
 
         <div id="emptyResult" class="empty-result">
-          <strong>Aucun hébergement trouvé</strong>
+          <strong>Aucune activité trouvée</strong>
           <span>Modifiez les filtres puis cliquez sur Rechercher.</span>
         </div>
       </section>
@@ -1094,105 +1086,110 @@
   </footer>
 
   <script>
-    function allerTransports() {
-      window.location.href = "Transport.html";
-    }
-
-    function allerHebergements() {
-      window.location.href = "Hebergements.html";
-    }
-
-    const hebergements = [
+    const activites = [
       {
         id: 1,
-        nom: "The Kayon Resort",
+        nom: "Randonnée dans les rizières",
         destination: "Bali",
-        pays: "Indonésie",
-        type: "resort",
-        capacite: 2,
-        prix: 125,
-        note: 4.8,
-        etoiles: "★★★★★",
-        disponibilite: "Disponible aux dates sélectionnées",
-        description: "Resort calme avec piscine, vue tropicale et accès rapide aux activités.",
-        image: "https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=900&q=80",
-        equipements: ["piscine", "petit-dejeuner", "annulation", "wifi"],
-        tags: ["Resort", "Piscine", "Petit-déjeuner", "Annulation gratuite"],
+        categorie: "nature",
+        niveau: "facile",
+        moment: "matin",
+        duree: 3,
+        prix: 45,
+        note: 4.7,
+        places: 8,
+        description: "Balade guidée dans les rizières avec découverte des paysages et traditions locales.",
+        image: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=900&q=80",
+        options: ["guide", "famille", "exterieur", "annulation"],
+        tags: ["Nature", "Guide", "Famille"],
         recommande: 1
       },
       {
         id: 2,
-        nom: "Villa Ummah Sunset",
-        destination: "Bali",
-        pays: "Indonésie",
-        type: "villa",
-        capacite: 4,
-        prix: 180,
-        note: 4.5,
-        etoiles: "★★★★☆",
-        disponibilite: "Plus que 3 disponibilités",
-        description: "Villa indépendante idéale pour un séjour entre amis ou en famille.",
-        image: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80",
-        equipements: ["piscine", "wifi"],
-        tags: ["Villa", "4 voyageurs", "Cuisine", "Vue mer"],
+        nom: "Visite de l'Acropole",
+        destination: "Athènes",
+        categorie: "culture",
+        niveau: "facile",
+        moment: "matin",
+        duree: 2,
+        prix: 35,
+        note: 4.8,
+        places: 14,
+        description: "Visite culturelle guidée autour de l'Acropole et des monuments historiques d'Athènes.",
+        image: "https://images.unsplash.com/photo-1555993539-1732b0258235?auto=format&fit=crop&w=900&q=80",
+        options: ["guide", "famille", "annulation"],
+        tags: ["Culture", "Histoire", "Guide"],
         recommande: 2
       },
       {
         id: 3,
-        nom: "Sunshine Beach Hotel",
-        destination: "Bali",
-        pays: "Indonésie",
-        type: "hotel",
-        capacite: 2,
-        prix: 95,
-        note: 4.3,
-        etoiles: "★★★★☆",
-        disponibilite: "Disponible",
-        description: "Hôtel proche de la plage, pratique pour un séjour court et confortable.",
-        image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=80",
-        equipements: ["centre", "wifi", "petit-dejeuner"],
-        tags: ["Hôtel", "Plage", "Wi-Fi inclus", "2 voyageurs"],
+        nom: "Parapente au-dessus des Alpes",
+        destination: "Interlaken",
+        categorie: "sport",
+        niveau: "sportif",
+        moment: "apres-midi",
+        duree: 2,
+        prix: 160,
+        note: 4.9,
+        places: 4,
+        description: "Expérience sportive avec vue panoramique sur les montagnes suisses.",
+        image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80",
+        options: ["exterieur", "transport"],
+        tags: ["Sport", "Aventure", "Extérieur"],
         recommande: 3
       },
       {
         id: 4,
-        nom: "Athens Central Apartment",
-        destination: "Athènes",
-        pays: "Grèce",
-        type: "appartement",
-        capacite: 3,
-        prix: 88,
-        note: 4.1,
-        etoiles: "★★★★☆",
-        disponibilite: "Disponible",
-        description: "Appartement bien placé pour visiter le centre historique d'Athènes.",
-        image: "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80",
-        equipements: ["centre", "wifi", "annulation"],
-        tags: ["Appartement", "Centre-ville", "Wi-Fi", "Annulation gratuite"],
+        nom: "Cours de cuisine locale",
+        destination: "Marrakech",
+        categorie: "gastronomie",
+        niveau: "facile",
+        moment: "soir",
+        duree: 4,
+        prix: 75,
+        note: 4.6,
+        places: 10,
+        description: "Atelier culinaire avec préparation de plats locaux et dégustation sur place.",
+        image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=900&q=80",
+        options: ["repas", "famille", "annulation"],
+        tags: ["Gastronomie", "Repas inclus", "Famille"],
         recommande: 4
       },
       {
         id: 5,
-        nom: "Interlaken Mountain Lodge",
-        destination: "Interlaken",
-        pays: "Suisse",
-        type: "hotel",
-        capacite: 5,
-        prix: 210,
-        note: 4.7,
-        etoiles: "★★★★★",
-        disponibilite: "Dernières chambres disponibles",
-        description: "Lodge confortable avec vue montagne, parfait pour les randonnées.",
-        image: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80",
-        equipements: ["petit-dejeuner", "wifi", "annulation"],
-        tags: ["Montagne", "5 voyageurs", "Petit-déjeuner", "Vue alpine"],
+        nom: "Journée bateau et snorkeling",
+        destination: "Maldives",
+        categorie: "detente",
+        niveau: "moyen",
+        moment: "journee",
+        duree: 8,
+        prix: 220,
+        note: 4.9,
+        places: 6,
+        description: "Sortie en mer avec snorkeling, détente et découverte des lagons.",
+        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
+        options: ["repas", "transport", "exterieur"],
+        tags: ["Détente", "Snorkeling", "Repas inclus"],
         recommande: 5
+      },
+      {
+        id: 6,
+        nom: "Balade nocturne à Tokyo",
+        destination: "Tokyo",
+        categorie: "culture",
+        niveau: "facile",
+        moment: "soir",
+        duree: 3,
+        prix: 55,
+        note: 4.5,
+        places: 12,
+        description: "Découverte des quartiers animés, lumières urbaines et lieux emblématiques de Tokyo.",
+        image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=900&q=80",
+        options: ["guide", "exterieur", "annulation"],
+        tags: ["Culture", "Soir", "Guide"],
+        recommande: 6
       }
     ];
-
-    function allerDestinations() {
-      window.location.href = "Destination.html";
-    }
 
     function actionTemporaire(action) {
       console.log("Action prévue :", action);
@@ -1207,32 +1204,34 @@
         .replace(/[\u0300-\u036f]/g, "");
     }
 
-    function rechercherHebergement(event) {
+    function rechercherActivite(event) {
       event.preventDefault();
       appliquerFiltres();
     }
 
     function getFiltresActifs() {
       const destination = normaliserTexte(document.getElementById("destination").value.trim());
-      const type = document.getElementById("type").value;
-      const voyageurs = parseInt(document.getElementById("voyageurs").value, 10);
-      const noteMinSelect = document.getElementById("classement").value;
-      const budgetRange = parseInt(document.getElementById("prixRangeInput").value, 10);
+      const categorie = document.getElementById("categorie").value;
+      const participants = parseInt(document.getElementById("participants").value, 10);
+      const niveau = document.getElementById("niveau").value;
+      const dureeMaxSelect = document.getElementById("dureeMax").value;
+      const moment = document.getElementById("moment").value;
+      const prixMax = parseInt(document.getElementById("prixRangeInput").value, 10);
       const tri = document.getElementById("tri").value;
 
-      const budgetMax = budgetRange;
-      const noteMin = noteMinSelect === "" ? 0 : parseFloat(noteMinSelect);
-
-      const equipements = Array.from(document.querySelectorAll(".amenity-filter:checked"))
+      const dureeMax = dureeMaxSelect === "" ? 999 : parseInt(dureeMaxSelect, 10);
+      const options = Array.from(document.querySelectorAll(".option-filter:checked"))
         .map((checkbox) => checkbox.value);
 
       return {
         destination,
-        type,
-        voyageurs,
-        budgetMax,
-        noteMin,
-        equipements,
+        categorie,
+        participants,
+        niveau,
+        dureeMax,
+        moment,
+        prixMax,
+        options,
         tri
       };
     }
@@ -1240,33 +1239,37 @@
     function appliquerFiltres() {
       const filtres = getFiltresActifs();
 
-      let resultats = hebergements.filter((hotel) => {
-        const texteHotel = normaliserTexte(hotel.nom + " " + hotel.destination + " " + hotel.pays + " " + hotel.type);
-        const correspondDestination = filtres.destination === "" || texteHotel.includes(filtres.destination);
-        const correspondType = filtres.type === "" || hotel.type === filtres.type;
-        const correspondCapacite = hotel.capacite >= filtres.voyageurs;
-        const correspondPrix = hotel.prix <= filtres.budgetMax;
-        const correspondNote = hotel.note >= filtres.noteMin;
-        const correspondEquipements = filtres.equipements.every((equipement) => hotel.equipements.includes(equipement));
+      let resultats = activites.filter((activite) => {
+        const texteActivite = normaliserTexte(activite.nom + " " + activite.destination + " " + activite.categorie);
+        const correspondDestination = filtres.destination === "" || texteActivite.includes(filtres.destination);
+        const correspondCategorie = filtres.categorie === "" || activite.categorie === filtres.categorie;
+        const correspondParticipants = activite.places >= filtres.participants;
+        const correspondNiveau = filtres.niveau === "" || activite.niveau === filtres.niveau;
+        const correspondDuree = activite.duree <= filtres.dureeMax;
+        const correspondMoment = filtres.moment === "" || activite.moment === filtres.moment;
+        const correspondPrix = activite.prix <= filtres.prixMax;
+        const correspondOptions = filtres.options.every((option) => activite.options.includes(option));
 
-        return correspondDestination && correspondType && correspondCapacite && correspondPrix && correspondNote && correspondEquipements;
+        return correspondDestination && correspondCategorie && correspondParticipants && correspondNiveau && correspondDuree && correspondMoment && correspondPrix && correspondOptions;
       });
 
-      resultats = trierHebergements(resultats, filtres.tri);
-      afficherHebergements(resultats);
+      resultats = trierActivites(resultats, filtres.tri);
+      afficherActivites(resultats);
     }
 
-    function trierHebergements(liste, tri) {
+    function trierActivites(liste, tri) {
       const resultats = [...liste];
 
       if (tri === "prix-croissant") {
         resultats.sort((a, b) => a.prix - b.prix);
       } else if (tri === "prix-decroissant") {
         resultats.sort((a, b) => b.prix - a.prix);
+      } else if (tri === "duree") {
+        resultats.sort((a, b) => a.duree - b.duree);
       } else if (tri === "note") {
         resultats.sort((a, b) => b.note - a.note);
-      } else if (tri === "capacite") {
-        resultats.sort((a, b) => b.capacite - a.capacite);
+      } else if (tri === "places") {
+        resultats.sort((a, b) => b.places - a.places);
       } else {
         resultats.sort((a, b) => a.recommande - b.recommande);
       }
@@ -1274,13 +1277,13 @@
       return resultats;
     }
 
-    function afficherHebergements(liste) {
-      const hotelList = document.getElementById("hotelList");
+    function afficherActivites(liste) {
+      const activityList = document.getElementById("activityList");
       const emptyResult = document.getElementById("emptyResult");
       const nombreResultats = document.getElementById("nombreResultats");
 
       nombreResultats.textContent = liste.length;
-      hotelList.innerHTML = "";
+      activityList.innerHTML = "";
 
       if (liste.length === 0) {
         emptyResult.style.display = "block";
@@ -1289,40 +1292,36 @@
 
       emptyResult.style.display = "none";
 
-      liste.forEach((hotel) => {
+      liste.forEach((activite) => {
         const article = document.createElement("article");
-        article.className = "hotel-card";
+        article.className = "activity-card";
 
         article.innerHTML = `
-          <div class="hotel-image" style="background-image: url('${hotel.image}')"></div>
-          <div class="hotel-body">
-            <div class="hotel-top">
-              <div class="hotel-title">
-                <h3>${hotel.nom}</h3>
-                <p>${hotel.description}</p>
-                <div class="rating">${hotel.etoiles} <span>${hotel.note.toFixed(1).replace(".", ",")} / 5</span></div>
-              </div>
-              <div class="hotel-price">
-                <strong>${hotel.prix} €</strong>
-                <span>par nuit</span>
-              </div>
+          <div class="activity-image" style="background-image: url('${activite.image}')">
+            <span class="activity-badge">${activite.categorie}</span>
+          </div>
+          <div class="activity-body">
+            <h3>${activite.nom}</h3>
+            <p>${activite.description}</p>
+
+            <div class="activity-meta">
+              ${activite.tags.map((tag) => `<span>${tag}</span>`).join("")}
+              <span>${activite.duree} h</span>
+              <span>${activite.places} places</span>
+              <span>Note ${activite.note.toFixed(1).replace(".", ",")}/5</span>
             </div>
 
-            <div class="hotel-tags">
-              ${hotel.tags.map((tag) => `<span>${tag}</span>`).join("")}
-            </div>
-
-            <div class="hotel-bottom">
-              <p class="availability">${hotel.disponibilite}</p>
-              <div class="hotel-actions">
-                <button class="secondary-btn" onclick="actionTemporaire('Voir détails ${hotel.nom}')">Voir détails</button>
-                <button class="primary-btn" onclick="actionTemporaire('Ajouter ${hotel.nom} au panier')">Ajouter au panier</button>
+            <div class="activity-footer">
+              <div>
+                <strong>${activite.prix} €</strong>
+                <small>par personne</small>
               </div>
+              <button class="primary-btn" onclick="actionTemporaire('Ajouter ${activite.nom} au panier')">Ajouter au panier</button>
             </div>
           </div>
         `;
 
-        hotelList.appendChild(article);
+        activityList.appendChild(article);
       });
     }
 
@@ -1332,9 +1331,9 @@
 
     function resetFiltres() {
       document.getElementById("searchForm").reset();
-      document.getElementById("voyageurs").value = "2";
-      document.getElementById("prixRangeInput").value = "500";
-      document.getElementById("prixRange").textContent = "500 €";
+      document.getElementById("participants").value = "2";
+      document.getElementById("prixRangeInput").value = "300";
+      document.getElementById("prixRange").textContent = "300 €";
       document.getElementById("tri").value = "recommande";
     }
 
@@ -1350,7 +1349,7 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-      afficherHebergements(trierHebergements(hebergements, "recommande"));
+      afficherActivites(trierActivites(activites, "recommande"));
     });
   </script>
 </body>
