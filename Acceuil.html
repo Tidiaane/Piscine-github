@@ -702,7 +702,7 @@
 <body>
   <header>
     <nav class="navbar">
-      <button class="logo" onclick="actionTemporaire('Retour accueil')">
+      <button class="logo" onclick="window.location.href='Acceuil.html'">
         <span class="logo-icon">VV</span>
         <span>
           <span class="logo-title">VoyageVista</span>
@@ -719,7 +719,7 @@
 
       <div class="nav-actions">
         <div class="notification-wrapper">
-          <button class="icon-btn notification-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">
+          <button class="icon-btn notification-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
             🔔
             <span class="notification-badge">3</span>
           </button>
@@ -730,7 +730,7 @@
               <span>3 nouvelles</span>
             </div>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : réservation confirmée')">
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
               <span class="notification-icon">✅</span>
               <span>
                 <strong>Réservation confirmée</strong>
@@ -738,7 +738,7 @@
               </span>
             </button>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : départ bientôt')">
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
               <span class="notification-icon">✈️</span>
               <span>
                 <strong>Départ dans 2 jours</strong>
@@ -746,7 +746,7 @@
               </span>
             </button>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : activité disponible')">
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
               <span class="notification-icon">🎒</span>
               <span>
                 <strong>Activité disponible</strong>
@@ -754,12 +754,12 @@
               </span>
             </button>
 
-            <button class="notification-all" onclick="actionTemporaire('Voir toutes les notifications')">
+            <button class="notification-all" onclick="window.location.href='Notifications.html'">
               Voir toutes les notifications
             </button>
           </div>
         </div>
-        <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
+        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">🛒</button>
         <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
       </div>
     </nav>
@@ -782,10 +782,10 @@
           </form>
 
           <div class="tags">
-            <button onclick="actionTemporaire('Filtre plage')">Plage</button>
-            <button onclick="actionTemporaire('Filtre montagne')">Montagne</button>
-            <button onclick="actionTemporaire('Filtre aventure')">Aventure</button>
-            <button onclick="actionTemporaire('Filtre culture')">Culture</button>
+            <button onclick="window.location.href='Destination.html'">Plage</button>
+            <button onclick="window.location.href='Destination.html'">Montagne</button>
+            <button onclick="window.location.href='Destination.html'">Aventure</button>
+            <button onclick="window.location.href='Destination.html'">Culture</button>
           </div>
         </div>
 
@@ -794,7 +794,7 @@
           <div class="hero-card-body">
             <h2>Votre prochain voyage</h2>
             <p>Composez un séjour personnalisé avec toutes les étapes nécessaires.</p>
-            <button class="secondary-btn" onclick="actionTemporaire('Commencer un séjour')">
+            <button class="secondary-btn" onclick="window.location.href='Destination.html'">
               Commencer la planification
             </button>
           </div>
@@ -808,7 +808,7 @@
           <p>Fonctionnalités principales</p>
           <h2>Organisez chaque partie du voyage</h2>
         </div>
-        <button class="secondary-btn" onclick="actionTemporaire('Voir toutes les fonctionnalités')">Voir tout</button>
+        <button class="secondary-btn" onclick="window.location.href='Destination.html'">Voir tout</button>
       </div>
 
       <div class="service-grid">
@@ -898,19 +898,19 @@
         </div>
 
         <div class="step-grid">
-          <button class="step-card" onclick="actionTemporaire('Étape 1 : Rechercher')">
+          <button class="step-card" onclick="window.location.href='Destination.html'">
             <span>1</span>
             <strong>Rechercher</strong>
           </button>
-          <button class="step-card" onclick="actionTemporaire('Étape 2 : Composer')">
+          <button class="step-card" onclick="window.location.href='Panier.html'">
             <span>2</span>
             <strong>Composer</strong>
           </button>
-          <button class="step-card" onclick="actionTemporaire('Étape 3 : Valider')">
+          <button class="step-card" onclick="window.location.href='Panier.html'">
             <span>3</span>
             <strong>Valider</strong>
           </button>
-          <button class="step-card" onclick="actionTemporaire('Étape 4 : Notifier')">
+          <button class="step-card" onclick="window.location.href='Notifications.html'">
             <span>4</span>
             <strong>Notifier</strong>
           </button>
@@ -923,9 +923,9 @@
     <div class="footer-content">
       <p>© 2026 VoyageVista — Projet Web dynamique</p>
       <div class="footer-links">
-        <button onclick="actionTemporaire('Aide')">Aide</button>
-        <button onclick="actionTemporaire('Conditions')">Conditions</button>
-        <button onclick="actionTemporaire('Contact')">Contact</button>
+        <button onclick="window.location.href='Aide.html'">Aide</button>
+        <button onclick="window.location.href='Conditions.html'">Conditions</button>
+        <button onclick="window.location.href='Contact.html'">Contact</button>
       </div>
     </div>
   </footer>
@@ -951,13 +951,11 @@
 
       const valeurRecherche = document.getElementById("searchInput").value.trim();
 
-      console.log("Recherche demandée :", valeurRecherche);
-
-      if (valeurRecherche === "") {
-        alert("Recherche prévue : aucune destination saisie");
-      } else {
-        alert("Recherche prévue pour : " + valeurRecherche);
+      if (valeurRecherche !== "") {
+        localStorage.setItem("voyageVistaRecherche", valeurRecherche);
       }
+
+      window.location.href = "Destination.html";
     }
   </script>
 </body>

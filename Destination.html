@@ -823,7 +823,7 @@
       </button>
 
       <div class="nav-links">
-        <button class="active" onclick="window.location.href='Destinations.html'">Destinations</button>
+        <button class="active" onclick="window.location.href='Destination.html'">Destinations</button>
         <button onclick="window.location.href='Transport.html'">Transports</button>
         <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
         <button onclick="window.location.href='Activites.html'">Activités</button>
@@ -833,7 +833,7 @@
         <button class="secondary-btn" onclick="allerAuxFiltres()">Recherche</button>
 
         <div class="notification-wrapper">
-          <button class="icon-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">
+          <button class="icon-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
             🔔
             <span class="notification-badge">3</span>
           </button>
@@ -844,7 +844,7 @@
               <span>3 nouvelles</span>
             </div>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : destination ajoutée')">
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
               <span class="notification-icon">🌍</span>
               <span>
                 <strong>Nouvelle destination</strong>
@@ -852,7 +852,7 @@
               </span>
             </button>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : offre spéciale')">
+            <button class="notification-item" onclick="window.location.href='Notifications.html'">
               <span class="notification-icon">💸</span>
               <span>
                 <strong>Offre spéciale</strong>
@@ -860,7 +860,7 @@
               </span>
             </button>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : panier')">
+            <button class="notification-item" onclick="window.location.href='Panier.html'">
               <span class="notification-icon">🛒</span>
               <span>
                 <strong>Panier sauvegardé</strong>
@@ -868,13 +868,13 @@
               </span>
             </button>
 
-            <button class="notification-all" onclick="actionTemporaire('Voir toutes les notifications')">
+            <button class="notification-all" onclick="window.location.href='Notifications.html'">
               Voir toutes les notifications
             </button>
           </div>
         </div>
 
-        <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
+        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">🛒</button>
         <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
       </div>
     </nav>
@@ -1033,9 +1033,9 @@
     <div class="footer-content">
       <p>© 2026 VoyageVista — Projet Web dynamique</p>
       <div class="footer-links">
-        <button onclick="actionTemporaire('Aide')">Aide</button>
-        <button onclick="actionTemporaire('Conditions')">Conditions</button>
-        <button onclick="actionTemporaire('Contact')">Contact</button>
+        <button onclick="window.location.href='Aide.html'">Aide</button>
+        <button onclick="window.location.href='Conditions.html'">Conditions</button>
+        <button onclick="window.location.href='Contact.html'">Contact</button>
       </div>
     </div>
   </footer>
@@ -1250,7 +1250,7 @@
                 <strong>${destination.prix} €</strong>
                 <small>à partir de</small>
               </div>
-              <button class="primary-btn" onclick="actionTemporaire('Voir destination ${destination.nom}')">Voir</button>
+              <button class="primary-btn" onclick="window.location.href='Destination.html'">Voir</button>
             </div>
           </div>
         `;
