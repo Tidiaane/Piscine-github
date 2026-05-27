@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VoyageVista - Accueil</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    /* =========================
+       BARRE DE NAVIGATION
+    ========================= */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.96);
+      border-bottom: 1px solid #e2e8f0;
+      backdrop-filter: blur(8px);
+    }
+
+    .navbar {
+      max-width: 1200px;
+      margin: auto;
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: none;
+      background: transparent;
+      text-align: left;
+    }
+
+    .logo-icon {
+      width: 42px;
+      height: 42px;
+      border-radius: 16px;
+      background-color: #0e7490;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+    }
+
+    .logo-title {
+      display: block;
+      color: #155e75;
+      font-size: 20px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .logo-subtitle {
+      display: block;
+      margin-top: 3px;
+      font-size: 12px;
+      color: #64748b;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links button {
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-weight: 700;
+      padding: 10px 14px;
+      border-radius: 999px;
+      transition: 0.2s;
+    }
+
+    .nav-links button:hover {
+      background: #ecfeff;
+      color: #0e7490;
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
+    }
+
+    .icon-btn:hover {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .primary-btn,
+    .secondary-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 11px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      transition: 0.2s;
+      white-space: nowrap;
+    }
+
+    .primary-btn {
+      border: none;
+      background: #0e7490;
+      color: white;
+      box-shadow: 0 10px 18px rgba(14, 116, 144, 0.18);
+    }
+
+    .primary-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
+    .secondary-btn {
+      background: white;
+      color: #0e7490;
+      border: 1px solid #bae6fd;
+    }
+
+    .secondary-btn:hover {
+      background: #ecfeff;
+      transform: translateY(-1px);
+    }
+
+    /* =========================
+       HERO ACCUEIL
+    ========================= */
+    .hero {
+      background: linear-gradient(135deg, #155e75, #0284c7, #059669);
+      color: white;
+    }
+
+    .hero-container {
+      max-width: 1200px;
+      margin: auto;
+      padding: 80px 24px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 48px;
+      align-items: center;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 9px 15px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+
+    .hero h1 {
+      max-width: 760px;
+      font-size: clamp(38px, 5vw, 68px);
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-description {
+      max-width: 680px;
+      margin-top: 22px;
+      font-size: 18px;
+      line-height: 1.7;
+      color: #ecfeff;
+    }
+
+    .search-box {
+      margin-top: 32px;
+      display: flex;
+      gap: 12px;
+      background: white;
+      padding: 12px;
+      border-radius: 28px;
+      box-shadow: 0 25px 50px rgba(15, 23, 42, 0.18);
+    }
+
+    .search-box input {
+      flex: 1;
+      min-width: 0;
+      padding: 13px 16px;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      font-size: 16px;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: #0891b2;
+    }
+
+    .tags {
+      margin-top: 22px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .tags button {
+      padding: 10px 15px;
+      border-radius: 999px;
+      color: white;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      font-weight: 700;
+      transition: 0.2s;
+    }
+
+    .tags button:hover {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    .hero-card {
+      background: rgba(255, 255, 255, 0.16);
+      border-radius: 34px;
+      padding: 16px;
+      box-shadow: 0 25px 55px rgba(15, 23, 42, 0.22);
+    }
+
+    .hero-image {
+      height: 340px;
+      border-radius: 26px 26px 0 0;
+      background:
+        linear-gradient(rgba(0, 0, 0, 0.05), rgba(0, 0, 0, 0.15)),
+        url("https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .hero-card-body {
+      background: white;
+      color: #0f172a;
+      border-radius: 0 0 26px 26px;
+      padding: 24px;
+    }
+
+    .hero-card-body p {
+      margin-top: 8px;
+      color: #64748b;
+      line-height: 1.5;
+    }
+
+    .hero-card-body button {
+      width: 100%;
+      margin-top: 20px;
+    }
+
+    /* =========================
+       SECTIONS
+    ========================= */
+    .section {
+      max-width: 1200px;
+      margin: auto;
+      padding: 64px 24px;
+    }
+
+    .section-white {
+      max-width: none;
+      background: white;
+    }
+
+    .section-white .section-title,
+    .section-white .destination-grid {
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .section-title p,
+    .process-text p {
+      margin-bottom: 8px;
+      color: #0e7490;
+      font-weight: 800;
+    }
+
+    .section-title h2,
+    .process-text h2 {
+      font-size: 34px;
+      letter-spacing: -0.02em;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+    }
+
+    .service-card {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 28px;
+      padding: 26px;
+      text-align: left;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+      transition: 0.2s;
+    }
+
+    .service-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.10);
+    }
+
+    .service-icon {
+      display: flex;
+      width: 58px;
+      height: 58px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      background: #ecfeff;
+      font-size: 26px;
+      margin-bottom: 20px;
+    }
+
+    .service-card h3,
+    .destination-card h3 {
+      font-size: 20px;
+    }
+
+    .service-card p,
+    .destination-card p {
+      margin-top: 10px;
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .destination-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .destination-card {
+      overflow: hidden;
+      border-radius: 28px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.04);
+    }
+
+    .destination-image {
+      height: 220px;
+      background-size: cover;
+      background-position: center;
+    }
+
+    .destination-image.bali {
+      background-image: url("https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80");
+    }
+
+    .destination-image.suisse {
+      background-image: url("https://images.unsplash.com/photo-1500048993953-d23a436266cf?auto=format&fit=crop&w=900&q=80");
+    }
+
+    .destination-image.grece {
+      background-image: url("https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=900&q=80");
+    }
+
+    .destination-body {
+      padding: 24px;
+    }
+
+    .destination-footer {
+      margin-top: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .destination-footer strong {
+      color: #155e75;
+    }
+
+    /* =========================
+       PARCOURS UTILISATEUR
+    ========================= */
+    .process-box {
+      background: #0f172a;
+      color: white;
+      border-radius: 34px;
+      padding: 42px;
+      display: grid;
+      grid-template-columns: 0.85fr 1.15fr;
+      gap: 40px;
+      align-items: center;
+      box-shadow: 0 25px 45px rgba(15, 23, 42, 0.18);
+    }
+
+    .process-text p {
+      color: #67e8f9;
+    }
+
+    .process-text span {
+      display: block;
+      margin-top: 16px;
+      color: #cbd5e1;
+      line-height: 1.7;
+    }
+
+    .step-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .step-card {
+      padding: 22px;
+      min-height: 140px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: none;
+      text-align: left;
+      transition: 0.2s;
+    }
+
+    .step-card:hover {
+      background: rgba(255, 255, 255, 0.18);
+      transform: translateY(-2px);
+    }
+
+    .step-card span {
+      display: flex;
+      width: 38px;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      background: #22d3ee;
+      color: #0f172a;
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+
+    /* =========================
+       FOOTER
+    ========================= */
+    footer {
+      border-top: 1px solid #e2e8f0;
+      background: white;
+      padding: 28px 24px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      color: #64748b;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 18px;
+    }
+
+    .footer-links button {
+      border: none;
+      background: transparent;
+      color: #64748b;
+      font-weight: 700;
+    }
+
+    .footer-links button:hover {
+      color: #0e7490;
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================= */
+    @media (max-width: 950px) {
+      .nav-links {
+        display: none;
+      }
+
+      .hero-container,
+      .process-box {
+        grid-template-columns: 1fr;
+      }
+
+      .service-grid,
+      .step-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .destination-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 620px) {
+      .navbar {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .hero-container {
+        padding: 56px 18px;
+      }
+
+      .search-box,
+      .section-title,
+      .footer-content {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .service-grid,
+      .step-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section {
+        padding: 48px 18px;
+      }
+
+      .process-box {
+        padding: 28px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <nav class="navbar">
+      <button class="logo" onclick="actionTemporaire('Retour accueil')">
+        <span class="logo-icon">VV</span>
+        <span>
+          <span class="logo-title">VoyageVista</span>
+          <span class="logo-subtitle">Planifiez. Explorez. Vivez.</span>
+        </span>
+      </button>
+
+      <div class="nav-links">
+        <button onclick="actionTemporaire('Page destinations')">Destinations</button>
+        <button onclick="actionTemporaire('Page transports')">Transports</button>
+        <button onclick="actionTemporaire('Page hébergements')">Hébergements</button>
+        <button onclick="actionTemporaire('Page activités')">Activités</button>
+      </div>
+
+      <div class="nav-actions">
+        <button class="icon-btn" onclick="actionTemporaire('Notifications')" aria-label="Notifications">🔔</button>
+        <button class="icon-btn" onclick="actionTemporaire('Panier')" aria-label="Panier">🛒</button>
+        <button class="primary-btn" onclick="actionTemporaire('Connexion')">Connexion</button>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-container">
+        <div>
+          <p class="badge">Plateforme de planification de voyages</p>
+          <h1>Créez votre séjour complet en quelques clics</h1>
+          <p class="hero-description">
+            Recherchez une destination, ajoutez un transport, choisissez un hébergement,
+            sélectionnez des activités et validez votre panier de voyage.
+          </p>
+
+          <form class="search-box" onsubmit="rechercherDestination(event)">
+            <input id="searchInput" type="text" placeholder="Où voulez-vous partir ?" />
+            <button class="primary-btn" type="submit">Rechercher</button>
+          </form>
+
+          <div class="tags">
+            <button onclick="actionTemporaire('Filtre plage')">Plage</button>
+            <button onclick="actionTemporaire('Filtre montagne')">Montagne</button>
+            <button onclick="actionTemporaire('Filtre aventure')">Aventure</button>
+            <button onclick="actionTemporaire('Filtre culture')">Culture</button>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="hero-image"></div>
+          <div class="hero-card-body">
+            <h2>Votre prochain voyage</h2>
+            <p>Composez un séjour personnalisé avec toutes les étapes nécessaires.</p>
+            <button class="secondary-btn" onclick="actionTemporaire('Commencer un séjour')">
+              Commencer la planification
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">
+        <div>
+          <p>Fonctionnalités principales</p>
+          <h2>Organisez chaque partie du voyage</h2>
+        </div>
+        <button class="secondary-btn" onclick="actionTemporaire('Voir toutes les fonctionnalités')">Voir tout</button>
+      </div>
+
+      <div class="service-grid">
+        <button class="service-card" onclick="actionTemporaire('Ouvrir Destinations')">
+          <span class="service-icon">🌍</span>
+          <h3>Destinations</h3>
+          <p>Explorer les pays, villes et séjours proposés.</p>
+        </button>
+
+        <button class="service-card" onclick="actionTemporaire('Ouvrir Transports')">
+          <span class="service-icon">✈️</span>
+          <h3>Transports</h3>
+          <p>Comparer avion, train, bus ou voiture.</p>
+        </button>
+
+        <button class="service-card" onclick="actionTemporaire('Ouvrir Hébergements')">
+          <span class="service-icon">🏨</span>
+          <h3>Hébergements</h3>
+          <p>Choisir un hôtel, appartement ou resort.</p>
+        </button>
+
+        <button class="service-card" onclick="actionTemporaire('Ouvrir Activités')">
+          <span class="service-icon">🎒</span>
+          <h3>Activités</h3>
+          <p>Ajouter des expériences au séjour.</p>
+        </button>
+      </div>
+    </section>
+
+    <section class="section section-white">
+      <div class="section-title">
+        <div>
+          <p>Catalogue</p>
+          <h2>Destinations populaires</h2>
+        </div>
+        <button class="secondary-btn" onclick="actionTemporaire('Catalogue complet')">Explorer le catalogue</button>
+      </div>
+
+      <div class="destination-grid">
+        <article class="destination-card">
+          <div class="destination-image bali"></div>
+          <div class="destination-body">
+            <h3>Bali, Indonésie</h3>
+            <p>Plages, détente et paysages tropicaux.</p>
+            <div class="destination-footer">
+              <strong>À partir de 899 €</strong>
+              <button class="primary-btn" onclick="actionTemporaire('Voir destination Bali')">Voir</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="destination-card">
+          <div class="destination-image suisse"></div>
+          <div class="destination-body">
+            <h3>Interlaken, Suisse</h3>
+            <p>Montagnes, randonnées et activités sportives.</p>
+            <div class="destination-footer">
+              <strong>À partir de 749 €</strong>
+              <button class="primary-btn" onclick="actionTemporaire('Voir destination Interlaken')">Voir</button>
+            </div>
+          </div>
+        </article>
+
+        <article class="destination-card">
+          <div class="destination-image grece"></div>
+          <div class="destination-body">
+            <h3>Athènes, Grèce</h3>
+            <p>Culture, soleil et découverte historique.</p>
+            <div class="destination-footer">
+              <strong>À partir de 529 €</strong>
+              <button class="primary-btn" onclick="actionTemporaire('Voir destination Athènes')">Voir</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="process-box">
+        <div class="process-text">
+          <p>Parcours utilisateur</p>
+          <h2>Du choix au paiement simulé</h2>
+          <span>
+            Cette page prépare les futures navigations vers le catalogue, le panier,
+            le paiement et les notifications.
+          </span>
+        </div>
+
+        <div class="step-grid">
+          <button class="step-card" onclick="actionTemporaire('Étape 1 : Rechercher')">
+            <span>1</span>
+            <strong>Rechercher</strong>
+          </button>
+          <button class="step-card" onclick="actionTemporaire('Étape 2 : Composer')">
+            <span>2</span>
+            <strong>Composer</strong>
+          </button>
+          <button class="step-card" onclick="actionTemporaire('Étape 3 : Valider')">
+            <span>3</span>
+            <strong>Valider</strong>
+          </button>
+          <button class="step-card" onclick="actionTemporaire('Étape 4 : Notifier')">
+            <span>4</span>
+            <strong>Notifier</strong>
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="footer-content">
+      <p>© 2026 VoyageVista — Projet Web dynamique</p>
+      <div class="footer-links">
+        <button onclick="actionTemporaire('Aide')">Aide</button>
+        <button onclick="actionTemporaire('Conditions')">Conditions</button>
+        <button onclick="actionTemporaire('Contact')">Contact</button>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Fonction temporaire : les boutons sont prêts mais ne redirigent pas encore.
+    // Plus tard, on pourra remplacer les alertes par : window.location.href = "catalogue.html";
+    function actionTemporaire(action) {
+      console.log("Action prévue :", action);
+      alert("Action prévue : " + action);
+    }
+
+    function rechercherDestination(event) {
+      event.preventDefault();
+
+      const valeurRecherche = document.getElementById("searchInput").value.trim();
+
+      console.log("Recherche demandée :", valeurRecherche);
+
+      if (valeurRecherche === "") {
+        alert("Recherche prévue : aucune destination saisie");
+      } else {
+        alert("Recherche prévue pour : " + valeurRecherche);
+      }
+    }
+  </script>
+</body>
+</html>
