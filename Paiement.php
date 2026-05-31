@@ -1025,6 +1025,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       margin-bottom: 18px;
     }
 
+    .payment-hero h1 {
+      max-width: 760px;
+      font-size: clamp(38px, 5vw, 62px);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+    }
 
     .payment-hero p {
       max-width: 720px;
@@ -1033,7 +1040,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       font-size: 18px;
     }
 
-    
+    .main-container {
+      max-width: 1240px;
+      margin: auto;
+      padding: 0 24px 64px;
+    }
+
     .payment-layout {
       margin-top: -38px;
       display: grid;
@@ -1044,13 +1056,25 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       align-items: start;
     }
 
+    .payment-panel,
+    .summary-panel {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 30px;
+      box-shadow: 0 18px 40px rgba(15, 23, 42, 0.10);
+      overflow: hidden;
+    }
 
     .panel-header {
       padding: 24px;
       border-bottom: 1px solid #e2e8f0;
     }
 
-    
+    .panel-header p {
+      color: #0e7490;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
 
     .panel-header h2 {
       font-size: 28px;
@@ -1061,6 +1085,12 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       padding: 24px;
     }
 
+    .security-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
 
     .security-card {
       border-radius: 22px;
@@ -1161,6 +1191,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       margin-bottom: 5px;
     }
 
+    .summary-item span {
+      color: #64748b;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.5;
+      display: block;
+    }
 
     .summary-line {
       display: flex;
@@ -1196,6 +1233,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       width: 100%;
     }
 
+    .note-box {
+      margin-top: 18px;
+      padding: 16px;
+      border-radius: 22px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #64748b;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
 
     footer {
       border-top: 1px solid #e2e8f0;
@@ -1228,6 +1276,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       color: #0e7490;
     }
 
+    @media (max-width: 980px) {
+      .nav-links {
+        display: none;
+      }
+
+      .payment-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .summary-panel {
+        position: static;
+      }
+
+      .security-row {
+        grid-template-columns: 1fr;
+      }
+    }
 
     @media (max-width: 640px) {
       .navbar,
@@ -1403,6 +1468,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 >
               </div>
 
+              <div class="field">
+                <label for="numero_carte">Numéro de carte</label>
+                <input
+                  id="numero_carte"
+                  name="numero_carte"
+                  type="text"
+                  placeholder="1234 5678 9012 3456"
+                  maxlength="19"
+                  value="<?= h($_POST["numero_carte"] ?? "") ?>"
+                  required
+                >
+              </div>
+
               <div class="form-row">
                 <div class="field">
                   <label for="expiration">Expiration</label>
@@ -1463,8 +1541,75 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
           </div>
         </section>
 
-          
+        <aside class="summary-panel">
+          <div class="panel-header">
+            <p>Récapitulatif</p>
+            <h2>Votre réservation</h2>
+          </div>
 
+          <div class="panel-body">
+            <div class="summary-list">
+              <?php foreach ($lignes as $ligne): ?>
+                <?php
+                  $typeElement = $ligne["type_element"] ?? "";
+                  $quantiteFacturee = getQuantiteFacturee($ligne);
+                  $prixUnitaire = floatval($ligne["prix_unitaire"] ?? 0);
+                  $totalLigne = $quantiteFacturee * $prixUnitaire;
+                  $transport = $typeElement === "transport" ? getTransportInfo($pdo, intval($ligne["id_element"] ?? 0)) : null;
+                ?>
+
+                <div class="summary-item">
+                  <strong><?= h($ligne["nom_element"] ?? "Élément") ?></strong>
+
+                  <?php if ($typeElement === "hebergement"): ?>
+                    <span>
+                      Hébergement ·
+                      du <?= h(formatDateFr($ligne["date_arrivee"] ?? "")) ?>
+                      au <?= h(formatDateFr($ligne["date_depart"] ?? "")) ?>
+                      · <?= h($quantiteFacturee) ?> nuit(s)
+                      · <?= h(formatPrix($totalLigne)) ?>
+                    </span>
+                  <?php elseif ($typeElement === "transport" && $transport): ?>
+                    <span>
+                      Transport ·
+                      <?= h($transport["ville_depart"] ?? "") ?>
+                      →
+                      <?= h($transport["ville_arrivee"] ?? "") ?>
+                      · <?= h(formatDateFr($transport["date_depart"] ?? "")) ?>
+                      à <?= h(formatHeure($transport["heure_depart"] ?? "")) ?>
+                      · <?= h($quantiteFacturee) ?> place(s)
+                      · <?= h(formatPrix($totalLigne)) ?>
+                    </span>
+                  <?php else: ?>
+                    <span>
+                      <?= h(afficherTypeElement($typeElement)) ?>
+                      · Quantité <?= h($quantiteFacturee) ?>
+                      · <?= h(formatPrix($totalLigne)) ?>
+                    </span>
+                  <?php endif; ?>
+                </div>
+              <?php endforeach; ?>
+            </div>
+
+            <br>
+
+            <div class="summary-line">
+              <span>Sous-total</span>
+              <strong><?= h(formatPrix($sousTotal)) ?></strong>
+            </div>
+
+            <div class="summary-line">
+              <span>Frais de dossier</span>
+              <strong><?= h(formatPrix($frais)) ?></strong>
+            </div>
+
+            <div class="summary-total">
+              <span>Total</span>
+              <strong><?= h(formatPrix($totalFinal)) ?></strong>
+            </div>
+          </div>
+        </aside>
+      </div>
     </section>
   </main>
 
@@ -1477,6 +1622,23 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
       </div>
     </div>
   </footer>
+
+  <script>
+    const numeroCarte = document.getElementById("numero_carte");
+    const expiration = document.getElementById("expiration");
+
+    numeroCarte.addEventListener("input", function () {
+      let value = this.value.replace(/\D/g, "").substring(0, 16);
+      value = value.replace(/(.{4})/g, "$1 ").trim();
+      this.value = value;
+    });
+
+    expiration.addEventListener("input", function () {
+      let value = this.value.replace(/\D/g, "").substring(0, 4);
+
+      if (value.length >= 3) {
+        value = value.substring(0, 2) + "/" + value.substring(2);
+      }
 
       this.value = value;
     });
