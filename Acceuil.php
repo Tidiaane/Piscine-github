@@ -1249,4 +1249,4 @@ $nbActivites = intval($totalActivites["total"] ?? 0);
     }
   </script>
 </body>
-</html>
+</html>  
