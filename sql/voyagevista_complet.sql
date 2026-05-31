@@ -1,27 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 5.2.3
--- https://www.phpmyadmin.net/
---
--- Hôte : 127.0.0.1:3306
--- Généré le : dim. 31 mai 2026 à 14:13
--- Version du serveur : 8.4.7
--- Version de PHP : 8.3.28
 
-SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-START TRANSACTION;
-SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8mb4 */;
-
---
--- Base de données : `voyagevista`
---
-
--- --------------------------------------------------------
 
 --
 -- Structure de la table `activite`
