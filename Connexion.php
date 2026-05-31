@@ -1,8 +1,158 @@
+<?php
+session_start();
+require_once "api/db.php";
+
+function h($valeur) {
+    return htmlspecialchars($valeur ?? "", ENT_QUOTES, "UTF-8");
+}
+
+function getInitiales($prenom, $nom, $email) {
+    $prenom = trim($prenom ?? "");
+    $nom = trim($nom ?? "");
+    $email = trim($email ?? "");
+
+    $initiales = "";
+
+    if ($prenom !== "") {
+        $initiales .= strtoupper(substr($prenom, 0, 1));
+    }
+
+    if ($nom !== "") {
+        $initiales .= strtoupper(substr($nom, 0, 1));
+    }
+
+    if ($initiales === "" && $email !== "") {
+        $initiales = strtoupper(substr($email, 0, 2));
+    }
+
+    return $initiales !== "" ? $initiales : "U";
+}
+
+$message = "";
+$typeMessage = "";
+
+if (isset($_GET["erreur"])) {
+    $typeMessage = "error";
+
+    if ($_GET["erreur"] === "connexion_requise") {
+        $message = "Vous devez être connecté pour accéder à cette page.";
+    } elseif ($_GET["erreur"] === "champs") {
+        $message = "Veuillez remplir tous les champs.";
+    } elseif ($_GET["erreur"] === "identifiants") {
+        $message = "Adresse e-mail ou mot de passe incorrect.";
+    } elseif ($_GET["erreur"] === "email") {
+        $message = "Adresse e-mail invalide.";
+    } elseif ($_GET["erreur"] === "password") {
+        $message = "Le mot de passe doit contenir au moins 8 caractères.";
+    } elseif ($_GET["erreur"] === "password_confirm") {
+        $message = "Les deux mots de passe ne correspondent pas.";
+    } elseif ($_GET["erreur"] === "conditions") {
+        $message = "Vous devez accepter les conditions d'utilisation.";
+    } elseif ($_GET["erreur"] === "email_existant") {
+        $message = "Un compte existe déjà avec cette adresse e-mail.";
+    } else {
+        $message = "Une erreur est survenue.";
+    }
+}
+
+if (isset($_GET["success"])) {
+    $typeMessage = "success";
+
+    if ($_GET["success"] === "compte_cree") {
+        $message = "Compte créé avec succès. Vous pouvez maintenant vous connecter.";
+    }
+}
+
+$estConnecte = isset($_SESSION["user_id"]);
+$idUtilisateur = $estConnecte ? $_SESSION["user_id"] : null;
+
+$utilisateur = null;
+$prenomUtilisateur = "";
+$nomUtilisateur = "";
+$emailUtilisateur = "";
+$initiales = "";
+
+if ($estConnecte) {
+    try {
+        $sqlUser = "SELECT * FROM utilisateur WHERE id_utilisateur = ?";
+        $stmtUser = $pdo->prepare($sqlUser);
+        $stmtUser->execute([$idUtilisateur]);
+        $utilisateur = $stmtUser->fetch();
+
+        if ($utilisateur) {
+            $prenomUtilisateur = $utilisateur["prenom"] ?? "";
+            $nomUtilisateur = $utilisateur["nom"] ?? "";
+            $emailUtilisateur = $utilisateur["email"] ?? "";
+            $initiales = getInitiales($prenomUtilisateur, $nomUtilisateur, $emailUtilisateur);
+        }
+    } catch (PDOException $e) {
+        $utilisateur = null;
+    }
+}
+
+$nombreElementsPanier = 0;
+
+if ($estConnecte) {
+    try {
+        $sqlPanier = "
+            SELECT COALESCE(SUM(lp.quantite), 0) AS total
+            FROM ligne_panier lp
+            JOIN panier p ON lp.id_panier = p.id_panier
+            WHERE p.id_utilisateur = ?
+        ";
+
+        $stmtPanier = $pdo->prepare($sqlPanier);
+        $stmtPanier->execute([$idUtilisateur]);
+        $resultPanier = $stmtPanier->fetch();
+
+        $nombreElementsPanier = intval($resultPanier["total"] ?? 0);
+    } catch (PDOException $e) {
+        $nombreElementsPanier = 0;
+    }
+}
+
+$nombreNotifications = 0;
+$notificationsPopup = [];
+
+if ($estConnecte) {
+    try {
+        $sqlNotifCount = "
+            SELECT COUNT(*) AS total
+            FROM notification
+            WHERE id_utilisateur = ?
+            AND statut_lecture = 0
+        ";
+
+        $stmtNotifCount = $pdo->prepare($sqlNotifCount);
+        $stmtNotifCount->execute([$idUtilisateur]);
+        $resultNotifCount = $stmtNotifCount->fetch();
+
+        $nombreNotifications = intval($resultNotifCount["total"] ?? 0);
+
+        $sqlNotifPopup = "
+            SELECT titre, message, date_envoi, statut_lecture
+            FROM notification
+            WHERE id_utilisateur = ?
+            ORDER BY date_envoi DESC
+            LIMIT 3
+        ";
+
+        $stmtNotifPopup = $pdo->prepare($sqlNotifPopup);
+        $stmtNotifPopup->execute([$idUtilisateur]);
+        $notificationsPopup = $stmtNotifPopup->fetchAll();
+    } catch (PDOException $e) {
+        $nombreNotifications = 0;
+        $notificationsPopup = [];
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>VoyageVista - Connexion</title>
 
   <style>
@@ -32,9 +182,6 @@
       cursor: pointer;
     }
 
-    /* =========================
-       NAVBAR
-    ========================= */
     header {
       position: sticky;
       top: 0;
@@ -45,7 +192,7 @@
     }
 
     .navbar {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       padding: 16px 24px;
       display: flex;
@@ -90,7 +237,8 @@
       color: #64748b;
     }
 
-    .nav-links {
+    .nav-links,
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -106,31 +254,10 @@
       transition: 0.2s;
     }
 
-    .nav-links button:hover {
+    .nav-links button:hover,
+    .nav-links button.active {
       background: #ecfeff;
       color: #0e7490;
-    }
-
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      position: relative;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      font-size: 18px;
-      transition: 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: #ecfeff;
-      border-color: #67e8f9;
     }
 
     .primary-btn,
@@ -145,6 +272,7 @@
       font-weight: 800;
       transition: 0.2s;
       white-space: nowrap;
+      text-decoration: none;
     }
 
     .primary-btn {
@@ -181,20 +309,30 @@
       transform: translateY(-1px);
     }
 
-    /* =========================
-       NOTIFICATIONS
-    ========================= */
-    .notification-wrapper {
+    .icon-btn {
       position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
     }
 
-    .notification-badge {
+    .icon-btn:hover {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .badge-count {
       position: absolute;
-      top: -4px;
-      right: -4px;
-      width: 18px;
+      top: -5px;
+      right: -5px;
+      min-width: 18px;
       height: 18px;
-      border-radius: 50%;
+      padding: 0 5px;
+      border-radius: 999px;
       background: #ef4444;
       color: white;
       font-size: 11px;
@@ -203,6 +341,10 @@
       align-items: center;
       justify-content: center;
       border: 2px solid white;
+    }
+
+    .notification-wrapper {
+      position: relative;
     }
 
     .notification-dropdown {
@@ -299,13 +441,24 @@
       font-weight: 800;
     }
 
-    .notification-all:hover {
-      background: #155e75;
+    .avatar-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: #0e7490;
+      color: white;
+      font-weight: 900;
+      font-size: 15px;
+      box-shadow: 0 10px 18px rgba(14, 116, 144, 0.18);
+      transition: 0.2s;
     }
 
-    /* =========================
-       PAGE CONNEXION
-    ========================= */
+    .avatar-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
     .auth-page {
       min-height: calc(100vh - 75px);
       background:
@@ -376,6 +529,29 @@
       padding: 28px;
       box-shadow: 0 28px 60px rgba(15, 23, 42, 0.22);
       align-self: start;
+    }
+
+    .connected-card {
+      display: grid;
+      gap: 16px;
+      text-align: left;
+    }
+
+    .connected-card h2 {
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+
+    .connected-card p {
+      color: #64748b;
+      line-height: 1.6;
+    }
+
+    .connected-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
     }
 
     .tabs {
@@ -578,7 +754,7 @@
     }
 
     .footer-content {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       display: flex;
       justify-content: space-between;
@@ -639,6 +815,14 @@
         border-radius: 28px;
       }
 
+      .connected-actions {
+        flex-direction: column;
+      }
+
+      .connected-actions button {
+        width: 100%;
+      }
+
       .notification-dropdown {
         right: -80px;
         width: 300px;
@@ -650,7 +834,7 @@
 <body>
   <header>
     <nav class="navbar">
-      <button class="logo" onclick="window.location.href='Acceuil.html'">
+      <button class="logo" onclick="window.location.href='Acceuil.php'">
         <span class="logo-icon">VV</span>
         <span>
           <span class="logo-title">VoyageVista</span>
@@ -659,59 +843,104 @@
       </button>
 
       <div class="nav-links">
-        <button onclick="window.location.href='Destination.html'">Destinations</button>
-        <button onclick="window.location.href='Transport.html'">Transports</button>
-        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
-        <button onclick="window.location.href='Activites.html'">Activités</button>
+        <?php if ((($_SESSION["user_role"] ?? "") === "admin") || (($_SESSION["user_role"] ?? "") === "gestionnaire")): ?>
+          <button onclick="window.location.href='Admin.php'">Admin</button>
+        <?php endif; ?>
+        <button onclick="window.location.href='Acceuil.php'">Accueil</button>
+        <button onclick="window.location.href='Destination.php'">Destinations</button>
+        <button onclick="window.location.href='Transport.php'">Transports</button>
+        <button onclick="window.location.href='Hebergements.php'">Hébergements</button>
+        <button onclick="window.location.href='Activites.php'">Activités</button>
+        <button onclick="window.location.href='Itineraires.php'">Itinéraires</button>
       </div>
 
       <div class="nav-actions">
-        <button class="secondary-btn" onclick="window.location.href='Destination.html'">Recherche</button>
-
         <div class="notification-wrapper">
-          <button class="icon-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
+          <button
+            class="icon-btn"
+            onclick="window.location.href='<?= $estConnecte ? "Notifications.php" : "Connexion.php?erreur=connexion_requise" ?>'"
+            aria-label="Notifications"
+          >
             🔔
-            <span class="notification-badge">3</span>
+
+            <?php if ($estConnecte && $nombreNotifications > 0): ?>
+              <span class="badge-count"><?= h($nombreNotifications) ?></span>
+            <?php endif; ?>
           </button>
 
           <div class="notification-dropdown">
             <div class="notification-header">
               <strong>Notifications</strong>
-              <span>3 nouvelles</span>
+
+              <?php if (!$estConnecte): ?>
+                <span>Connexion requise</span>
+              <?php elseif ($nombreNotifications > 0): ?>
+                <span><?= h($nombreNotifications) ?> nouvelle(s)</span>
+              <?php else: ?>
+                <span>Aucune nouvelle</span>
+              <?php endif; ?>
             </div>
 
-            <button class="notification-item" onclick="window.location.href='Notifications.html'">
-              <span class="notification-icon">✅</span>
-              <span>
-                <strong>Compte sécurisé</strong>
-                <small>Activez vos informations de connexion.</small>
-              </span>
-            </button>
+            <?php if (!$estConnecte): ?>
+              <button class="notification-item" onclick="window.location.href='Connexion.php'">
+                <span class="notification-icon">🔐</span>
+                <span>
+                  <strong>Connexion requise</strong>
+                  <small>Connectez-vous pour consulter vos notifications.</small>
+                </span>
+              </button>
+            <?php elseif (count($notificationsPopup) === 0): ?>
+              <button class="notification-item" onclick="window.location.href='Notifications.php'">
+                <span class="notification-icon">🔔</span>
+                <span>
+                  <strong>Aucune notification</strong>
+                  <small>Vous n’avez pas encore de notification.</small>
+                </span>
+              </button>
+            <?php else: ?>
+              <?php foreach ($notificationsPopup as $notification): ?>
+                <button class="notification-item" onclick="window.location.href='Notifications.php'">
+                  <span class="notification-icon">
+                    <?= intval($notification["statut_lecture"] ?? 0) === 0 ? "🔔" : "📩" ?>
+                  </span>
+                  <span>
+                    <strong><?= h($notification["titre"] ?? "Notification") ?></strong>
+                    <small><?= h($notification["message"] ?? "") ?></small>
+                  </span>
+                </button>
+              <?php endforeach; ?>
+            <?php endif; ?>
 
-            <button class="notification-item" onclick="window.location.href='Notifications.html'">
-              <span class="notification-icon">🛒</span>
-              <span>
-                <strong>Panier sauvegardé</strong>
-                <small>Connectez-vous pour retrouver votre voyage.</small>
-              </span>
-            </button>
-
-            <button class="notification-item" onclick="window.location.href='Notifications.html'">
-              <span class="notification-icon">✨</span>
-              <span>
-                <strong>Suggestions personnalisées</strong>
-                <small>Votre compte permettra de préparer des recommandations.</small>
-              </span>
-            </button>
-
-            <button class="notification-all" onclick="window.location.href='Notifications.html'">
+            <button
+              class="notification-all"
+              onclick="window.location.href='<?= $estConnecte ? "Notifications.php" : "Connexion.php" ?>'"
+            >
               Voir toutes les notifications
             </button>
           </div>
         </div>
 
-        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">🛒</button>
-        <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
+        <button
+          class="icon-btn"
+          onclick="window.location.href='<?= $estConnecte ? "Panier.php" : "Connexion.php?erreur=connexion_requise" ?>'"
+          aria-label="Panier"
+        >
+          🛒
+
+          <?php if ($estConnecte && $nombreElementsPanier > 0): ?>
+            <span class="badge-count"><?= h($nombreElementsPanier) ?></span>
+          <?php endif; ?>
+        </button>
+
+        <?php if ($estConnecte && $utilisateur): ?>
+          <button class="avatar-btn" onclick="window.location.href='Profil.php'" title="Mon profil">
+            <?= h($initiales) ?>
+          </button>
+        <?php else: ?>
+          <button class="primary-btn" onclick="window.location.href='Connexion.php'">
+            Connexion
+          </button>
+        <?php endif; ?>
       </div>
     </nav>
   </header>
@@ -734,115 +963,226 @@
       </div>
 
       <div class="auth-card">
-        <div class="tabs">
-          <button id="loginTab" class="tab-btn active" onclick="afficherFormulaire('login')" type="button">Se connecter</button>
-          <button id="registerTab" class="tab-btn" onclick="afficherFormulaire('register')" type="button">Créer un compte</button>
-        </div>
+        <?php if ($estConnecte && $utilisateur): ?>
+          <div class="connected-card">
+            <h2>Vous êtes déjà connecté</h2>
+            <p>
+              Votre session est active. Vous pouvez accéder à votre profil,
+              consulter votre panier ou continuer vos recherches.
+            </p>
 
-        <form id="loginForm" onsubmit="connexion(event)">
-          <div class="form-title">
-            <h2>Connexion</h2>
-            <p>Utilisez votre adresse e-mail et votre mot de passe.</p>
+            <div class="connected-actions">
+              <button class="primary-btn" onclick="window.location.href='Profil.php'">
+                Voir mon profil
+              </button>
+
+              <button class="secondary-btn" onclick="window.location.href='Panier.php'">
+                Voir mon panier
+              </button>
+
+              <button class="secondary-btn" onclick="window.location.href='Destination.php'">
+                Continuer mes recherches
+              </button>
+            </div>
+          </div>
+        <?php else: ?>
+          <div class="tabs">
+            <button id="loginTab" class="tab-btn active" onclick="afficherFormulaire('login')" type="button">
+              Se connecter
+            </button>
+            <button id="registerTab" class="tab-btn" onclick="afficherFormulaire('register')" type="button">
+              Créer un compte
+            </button>
           </div>
 
-          <div class="form-grid">
-            <div class="field">
-              <label for="loginEmail">Adresse e-mail</label>
-              <input id="loginEmail" type="email" placeholder="exemple@email.com" oninput="validerChampEmail('loginEmail', 'loginEmailError')" />
-              <div id="loginEmailError" class="error-message">Veuillez saisir une adresse e-mail valide.</div>
+          <form id="loginForm" action="api/login.php" method="POST" onsubmit="return validerConnexionAvantEnvoi()">
+            <div class="form-title">
+              <h2>Connexion</h2>
+              <p>Utilisez votre adresse e-mail et votre mot de passe.</p>
             </div>
 
-            <div class="field">
-              <label for="loginPassword">Mot de passe</label>
-              <div class="password-row">
-                <input id="loginPassword" type="password" placeholder="Votre mot de passe" oninput="validerChampObligatoire('loginPassword', 'loginPasswordError')" />
-                <button class="show-password" type="button" onclick="togglePassword('loginPassword', this)">Afficher</button>
+            <div class="form-grid">
+              <div class="field">
+                <label for="loginEmail">Adresse e-mail</label>
+                <input
+                  id="loginEmail"
+                  name="email"
+                  type="email"
+                  placeholder="exemple@email.com"
+                  oninput="validerChampEmail('loginEmail', 'loginEmailError')"
+                />
+                <div id="loginEmailError" class="error-message">
+                  Veuillez saisir une adresse e-mail valide.
+                </div>
               </div>
-              <div id="loginPasswordError" class="error-message">Le mot de passe est obligatoire.</div>
+
+              <div class="field">
+                <label for="loginPassword">Mot de passe</label>
+                <div class="password-row">
+                  <input
+                    id="loginPassword"
+                    name="password"
+                    type="password"
+                    placeholder="Votre mot de passe"
+                    oninput="validerChampObligatoire('loginPassword', 'loginPasswordError')"
+                  />
+                  <button class="show-password" type="button" onclick="togglePassword('loginPassword', this)">
+                    Afficher
+                  </button>
+                </div>
+                <div id="loginPasswordError" class="error-message">
+                  Le mot de passe est obligatoire.
+                </div>
+              </div>
+
+              <div class="form-options">
+                <label class="remember">
+                  <input id="rememberMe" type="checkbox" />
+                  Se souvenir de moi
+                </label>
+
+                <button class="link-btn" type="button" onclick="motDePasseOublie()">
+                  Mot de passe oublié ?
+                </button>
+              </div>
             </div>
 
-            <div class="form-options">
+            <div class="submit-zone">
+              <button class="primary-btn" type="submit">Se connecter</button>
+            </div>
+          </form>
+
+          <form id="registerForm" class="hidden" action="api/register.php" method="POST" onsubmit="return validerInscriptionAvantEnvoi()">
+            <div class="form-title">
+              <h2>Créer un compte</h2>
+              <p>Créez un compte pour préparer votre voyage et conserver votre panier.</p>
+            </div>
+
+            <div class="form-grid">
+              <div class="field">
+                <label for="registerName">Nom</label>
+                <input
+                  id="registerName"
+                  name="nom"
+                  type="text"
+                  placeholder="Votre nom"
+                  oninput="validerNom()"
+                />
+                <div id="registerNameError" class="error-message">
+                  Le nom doit contenir au moins 2 caractères.
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="registerFirstName">Prénom</label>
+                <input
+                  id="registerFirstName"
+                  name="prenom"
+                  type="text"
+                  placeholder="Votre prénom"
+                  oninput="validerPrenom()"
+                />
+                <div id="registerFirstNameError" class="error-message">
+                  Le prénom doit contenir au moins 2 caractères.
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="registerAddress">Adresse</label>
+                <input
+                  id="registerAddress"
+                  name="adresse"
+                  type="text"
+                  placeholder="Votre adresse"
+                  oninput="validerAdresse()"
+                />
+                <div id="registerAddressError" class="error-message">
+                  L'adresse doit contenir au moins 5 caractères.
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="registerEmail">Adresse e-mail</label>
+                <input
+                  id="registerEmail"
+                  name="email"
+                  type="email"
+                  placeholder="exemple@email.com"
+                  oninput="validerChampEmail('registerEmail', 'registerEmailError')"
+                />
+                <div id="registerEmailError" class="error-message">
+                  Veuillez saisir une adresse e-mail valide.
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="registerPassword">Mot de passe</label>
+                <div class="password-row">
+                  <input
+                    id="registerPassword"
+                    name="password"
+                    type="password"
+                    placeholder="Minimum 8 caractères"
+                    oninput="validerMotDePasseCreation()"
+                  />
+                  <button class="show-password" type="button" onclick="togglePassword('registerPassword', this)">
+                    Afficher
+                  </button>
+                </div>
+
+                <div id="registerPasswordError" class="error-message">
+                  Le mot de passe ne respecte pas les règles.
+                </div>
+
+                <div class="password-rules">
+                  <span id="ruleLength">• Au moins 8 caractères</span>
+                  <span id="ruleUpper">• Au moins une majuscule</span>
+                  <span id="ruleNumber">• Au moins un chiffre</span>
+                </div>
+              </div>
+
+              <div class="field">
+                <label for="confirmPassword">Confirmer le mot de passe</label>
+                <div class="password-row">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    placeholder="Confirmez le mot de passe"
+                    oninput="validerConfirmationMotDePasse()"
+                  />
+                  <button class="show-password" type="button" onclick="togglePassword('confirmPassword', this)">
+                    Afficher
+                  </button>
+                </div>
+
+                <div id="confirmPasswordError" class="error-message">
+                  Les deux mots de passe doivent être identiques.
+                </div>
+              </div>
+
               <label class="remember">
-                <input id="rememberMe" type="checkbox" />
-                Se souvenir de moi
+                <input id="acceptTerms" name="acceptTerms" type="checkbox" value="1" />
+                J'accepte les conditions d'utilisation
               </label>
-              <button class="link-btn" type="button" onclick="motDePasseOublie()">Mot de passe oublié ?</button>
-            </div>
-          </div>
-
-          <div class="submit-zone">
-            <button class="primary-btn" type="submit">Se connecter</button>
-            <button class="secondary-btn" type="button" onclick="remplirCompteDemo()">Utiliser un compte démo</button>
-          </div>
-        </form>
-
-        <form id="registerForm" class="hidden" onsubmit="creerCompte(event)">
-          <div class="form-title">
-            <h2>Créer un compte</h2>
-            <p>Créez un compte pour préparer votre voyage et conserver votre panier.</p>
-          </div>
-
-          <div class="form-grid">
-            <div class="field">
-              <label for="registerName">Nom</label>
-              <input id="registerName" type="text" placeholder="Votre nom" oninput="validerNom()" />
-              <div id="registerNameError" class="error-message">Le nom doit contenir au moins 2 caractères.</div>
             </div>
 
-            <div class="field">
-              <label for="registerFirstName">Prénom</label>
-              <input id="registerFirstName" type="text" placeholder="Votre prénom" oninput="validerPrenom()" />
-              <div id="registerFirstNameError" class="error-message">Le prénom doit contenir au moins 2 caractères.</div>
+            <div class="submit-zone">
+              <button class="primary-btn" type="submit">Créer le compte</button>
+              <button class="secondary-btn" type="button" onclick="afficherFormulaire('login')">
+                J'ai déjà un compte
+              </button>
             </div>
+          </form>
 
-            <div class="field">
-              <label for="registerAddress">Adresse</label>
-              <input id="registerAddress" type="text" placeholder="Votre adresse" oninput="validerAdresse()" />
-              <div id="registerAddressError" class="error-message">L'adresse doit contenir au moins 5 caractères.</div>
+          <?php if ($message !== ""): ?>
+            <div class="status-box <?= h($typeMessage) ?>" style="display:block;">
+              <?= h($message) ?>
             </div>
+          <?php endif; ?>
 
-            <div class="field">
-              <label for="registerEmail">Adresse e-mail</label>
-              <input id="registerEmail" type="email" placeholder="exemple@email.com" oninput="validerChampEmail('registerEmail', 'registerEmailError')" />
-              <div id="registerEmailError" class="error-message">Veuillez saisir une adresse e-mail valide.</div>
-            </div>
-
-            <div class="field">
-              <label for="registerPassword">Mot de passe</label>
-              <div class="password-row">
-                <input id="registerPassword" type="password" placeholder="Minimum 8 caractères" oninput="validerMotDePasseCreation()" />
-                <button class="show-password" type="button" onclick="togglePassword('registerPassword', this)">Afficher</button>
-              </div>
-              <div id="registerPasswordError" class="error-message">Le mot de passe ne respecte pas les règles.</div>
-              <div class="password-rules">
-                <span id="ruleLength">• Au moins 8 caractères</span>
-                <span id="ruleUpper">• Au moins une majuscule</span>
-                <span id="ruleNumber">• Au moins un chiffre</span>
-              </div>
-            </div>
-
-            <div class="field">
-              <label for="confirmPassword">Confirmer le mot de passe</label>
-              <div class="password-row">
-                <input id="confirmPassword" type="password" placeholder="Confirmez le mot de passe" oninput="validerConfirmationMotDePasse()" />
-                <button class="show-password" type="button" onclick="togglePassword('confirmPassword', this)">Afficher</button>
-              </div>
-              <div id="confirmPasswordError" class="error-message">Les deux mots de passe doivent être identiques.</div>
-            </div>
-
-            <label class="remember">
-              <input id="acceptTerms" type="checkbox" />
-              J'accepte les conditions d'utilisation
-            </label>
-          </div>
-
-          <div class="submit-zone">
-            <button class="primary-btn" type="submit">Créer le compte</button>
-            <button class="secondary-btn" type="button" onclick="afficherFormulaire('login')">J'ai déjà un compte</button>
-          </div>
-        </form>
-
-        <div id="statusBox" class="status-box"></div>
+          <div id="statusBox" class="status-box"></div>
+        <?php endif; ?>
       </div>
     </section>
   </main>
@@ -850,23 +1190,14 @@
   <footer>
     <div class="footer-content">
       <p>© 2026 VoyageVista — Projet Web dynamique</p>
+
       <div class="footer-links">
-        <button onclick="window.location.href='Contact.html'">Contact</button>
+        <button onclick="window.location.href='Contact.php'">Contact</button>
       </div>
     </div>
   </footer>
 
   <script>
-    const compteDemo = {
-      email: "demo@voyagevista.fr",
-      password: "Voyage2026"
-    };
-
-    function actionTemporaire(action) {
-      console.log("Action prévue :", action);
-      alert("Action prévue : " + action);
-    }
-
     function afficherFormulaire(type) {
       const loginForm = document.getElementById("loginForm");
       const registerForm = document.getElementById("registerForm");
@@ -911,8 +1242,11 @@
         error.classList.add("visible");
       } else {
         input.classList.remove("invalid");
-        input.classList.add("valid");
         error.classList.remove("visible");
+
+        if (input.value.trim() !== "") {
+          input.classList.add("valid");
+        }
       }
     }
 
@@ -961,7 +1295,11 @@
       document.getElementById("ruleNumber").classList.toggle("ok", rules.chiffre);
 
       afficherErreur("registerPassword", "registerPasswordError", !valide);
-      validerConfirmationMotDePasse();
+
+      if (document.getElementById("confirmPassword").value !== "") {
+        validerConfirmationMotDePasse();
+      }
+
       return valide;
     }
 
@@ -969,12 +1307,14 @@
       const password = document.getElementById("registerPassword").value;
       const confirmPassword = document.getElementById("confirmPassword").value;
       const invalide = confirmPassword === "" || password !== confirmPassword;
+
       afficherErreur("confirmPassword", "confirmPasswordError", invalide);
       return !invalide;
     }
 
     function togglePassword(inputId, button) {
       const input = document.getElementById(inputId);
+
       if (input.type === "password") {
         input.type = "text";
         button.textContent = "Masquer";
@@ -984,55 +1324,19 @@
       }
     }
 
-    function remplirCompteDemo() {
-      document.getElementById("loginEmail").value = compteDemo.email;
-      document.getElementById("loginPassword").value = compteDemo.password;
-      validerChampEmail("loginEmail", "loginEmailError");
-      validerChampObligatoire("loginPassword", "loginPasswordError");
-      afficherStatus("Compte démo renseigné. Cliquez sur Se connecter.", "success");
-    }
-
-    function connexion(event) {
-      event.preventDefault();
-
+    function validerConnexionAvantEnvoi() {
       const emailOk = validerChampEmail("loginEmail", "loginEmailError");
       const passwordOk = validerChampObligatoire("loginPassword", "loginPasswordError");
 
       if (!emailOk || !passwordOk) {
         afficherStatus("Connexion impossible : veuillez corriger les champs en rouge.", "error");
-        return;
+        return false;
       }
 
-      const email = document.getElementById("loginEmail").value.trim();
-      const password = document.getElementById("loginPassword").value;
-      const users = JSON.parse(localStorage.getItem("voyageVistaUsers") || "[]");
-
-      const compteLocal = users.find((user) => user.email === email && user.password === password);
-      const compteDemoOk = email === compteDemo.email && password === compteDemo.password;
-
-      if (!compteLocal && !compteDemoOk) {
-        afficherStatus("Identifiants incorrects. Utilisez le compte démo ou créez un compte.", "error");
-        return;
-      }
-
-      if (document.getElementById("rememberMe").checked) {
-        localStorage.setItem("voyageVistaRememberedEmail", email);
-      } else {
-        localStorage.removeItem("voyageVistaRememberedEmail");
-      }
-
-      localStorage.setItem("voyageVistaConnected", "true");
-      localStorage.setItem("voyageVistaCurrentUser", email);
-      afficherStatus("Connexion réussie. Redirection vers l'accueil...", "success");
-
-      setTimeout(function () {
-        window.location.href = "Acceuil.html";
-      }, 1200);
+      return true;
     }
 
-    function creerCompte(event) {
-      event.preventDefault();
-
+    function validerInscriptionAvantEnvoi() {
       const nameOk = validerNom();
       const firstNameOk = validerPrenom();
       const addressOk = validerAdresse();
@@ -1043,39 +1347,15 @@
 
       if (!nameOk || !firstNameOk || !addressOk || !emailOk || !passwordOk || !confirmOk) {
         afficherStatus("Création impossible : veuillez corriger les champs en rouge.", "error");
-        return;
+        return false;
       }
 
       if (!termsOk) {
         afficherStatus("Vous devez accepter les conditions d'utilisation.", "error");
-        return;
+        return false;
       }
 
-      const name = document.getElementById("registerName").value.trim();
-      const firstName = document.getElementById("registerFirstName").value.trim();
-      const address = document.getElementById("registerAddress").value.trim();
-      const email = document.getElementById("registerEmail").value.trim();
-      const password = document.getElementById("registerPassword").value;
-      const users = JSON.parse(localStorage.getItem("voyageVistaUsers") || "[]");
-
-      const existeDeja = users.some((user) => user.email === email) || email === compteDemo.email;
-      if (existeDeja) {
-        afficherStatus("Un compte existe déjà avec cette adresse e-mail.", "error");
-        return;
-      }
-
-      users.push({ name, firstName, address, email, password });
-      localStorage.setItem("voyageVistaUsers", JSON.stringify(users));
-
-      afficherStatus("Compte créé avec succès. Vous pouvez maintenant vous connecter.", "success");
-      document.getElementById("loginEmail").value = email;
-      document.getElementById("loginPassword").value = "";
-      document.getElementById("registerForm").reset();
-      resetReglesMotDePasse();
-
-      setTimeout(function () {
-        afficherFormulaire("login");
-      }, 900);
+      return true;
     }
 
     function motDePasseOublie() {
@@ -1093,28 +1373,20 @@
       const box = document.getElementById("statusBox");
       box.textContent = message;
       box.className = "status-box " + type;
+      box.style.display = "block";
     }
 
     function masquerStatus() {
       const box = document.getElementById("statusBox");
+
+      if (!box) {
+        return;
+      }
+
       box.textContent = "";
       box.className = "status-box";
+      box.style.display = "none";
     }
-
-    function resetReglesMotDePasse() {
-      document.getElementById("ruleLength").classList.remove("ok");
-      document.getElementById("ruleUpper").classList.remove("ok");
-      document.getElementById("ruleNumber").classList.remove("ok");
-    }
-
-    document.addEventListener("DOMContentLoaded", function () {
-      const rememberedEmail = localStorage.getItem("voyageVistaRememberedEmail");
-      if (rememberedEmail) {
-        document.getElementById("loginEmail").value = rememberedEmail;
-        document.getElementById("rememberMe").checked = true;
-        validerChampEmail("loginEmail", "loginEmailError");
-      }
-    });
   </script>
 </body>
 </html>

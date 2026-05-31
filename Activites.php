@@ -1,8 +1,215 @@
+<?php
+session_start();
+require_once "api/db.php";
+
+function h($valeur) {
+    return htmlspecialchars($valeur ?? "", ENT_QUOTES, "UTF-8");
+}
+
+function formatPrixCourt($prix) {
+    return number_format(floatval($prix), 0, ",", " ") . " €";
+}
+
+function getInitiales($prenom, $nom, $email) {
+    $prenom = trim($prenom ?? "");
+    $nom = trim($nom ?? "");
+    $email = trim($email ?? "");
+
+    $initiales = "";
+
+    if ($prenom !== "") {
+        $initiales .= strtoupper(substr($prenom, 0, 1));
+    }
+
+    if ($nom !== "") {
+        $initiales .= strtoupper(substr($nom, 0, 1));
+    }
+
+    if ($initiales === "" && $email !== "") {
+        $initiales = strtoupper(substr($email, 0, 2));
+    }
+
+    return $initiales !== "" ? $initiales : "U";
+}
+
+$estConnecte = isset($_SESSION["user_id"]);
+$idUtilisateur = $estConnecte ? $_SESSION["user_id"] : null;
+
+$utilisateur = null;
+$initiales = "";
+
+if ($estConnecte) {
+    try {
+        $sqlUser = "SELECT * FROM utilisateur WHERE id_utilisateur = ?";
+        $stmtUser = $pdo->prepare($sqlUser);
+        $stmtUser->execute([$idUtilisateur]);
+        $utilisateur = $stmtUser->fetch();
+
+        if ($utilisateur) {
+            $initiales = getInitiales(
+                $utilisateur["prenom"] ?? "",
+                $utilisateur["nom"] ?? "",
+                $utilisateur["email"] ?? ""
+            );
+        }
+    } catch (PDOException $e) {
+        $utilisateur = null;
+    }
+}
+
+$nombreElementsPanier = 0;
+
+if ($estConnecte) {
+    try {
+        $sqlPanier = "
+            SELECT COALESCE(SUM(lp.quantite), 0) AS total
+            FROM ligne_panier lp
+            JOIN panier p ON lp.id_panier = p.id_panier
+            WHERE p.id_utilisateur = ?
+        ";
+
+        $stmtPanier = $pdo->prepare($sqlPanier);
+        $stmtPanier->execute([$idUtilisateur]);
+        $resultPanier = $stmtPanier->fetch();
+
+        $nombreElementsPanier = intval($resultPanier["total"] ?? 0);
+    } catch (PDOException $e) {
+        $nombreElementsPanier = 0;
+    }
+}
+
+$nombreNotifications = 0;
+$notificationsPopup = [];
+
+if ($estConnecte) {
+    try {
+        $sqlNotifCount = "
+            SELECT COUNT(*) AS total
+            FROM notification
+            WHERE id_utilisateur = ?
+            AND statut_lecture = 0
+        ";
+
+        $stmtNotifCount = $pdo->prepare($sqlNotifCount);
+        $stmtNotifCount->execute([$idUtilisateur]);
+        $resultNotifCount = $stmtNotifCount->fetch();
+
+        $nombreNotifications = intval($resultNotifCount["total"] ?? 0);
+
+        $sqlNotifPopup = "
+            SELECT titre, message, date_envoi, statut_lecture
+            FROM notification
+            WHERE id_utilisateur = ?
+            ORDER BY date_envoi DESC
+            LIMIT 3
+        ";
+
+        $stmtNotifPopup = $pdo->prepare($sqlNotifPopup);
+        $stmtNotifPopup->execute([$idUtilisateur]);
+        $notificationsPopup = $stmtNotifPopup->fetchAll();
+    } catch (PDOException $e) {
+        $nombreNotifications = 0;
+        $notificationsPopup = [];
+    }
+}
+
+$activitesDb = [];
+
+try {
+    $sqlActivites = "
+        SELECT
+            a.*,
+            COALESCE(res.qte_reservee, 0) AS places_reservees,
+            GREATEST(a.places_disponibles - COALESCE(res.qte_reservee, 0), 0) AS places_restantes
+        FROM activite a
+        LEFT JOIN (
+            SELECT
+                id_element,
+                SUM(quantite) AS qte_reservee
+            FROM ligne_panier
+            WHERE type_element = 'activite'
+            GROUP BY id_element
+        ) res ON res.id_element = a.id_activite
+        ORDER BY a.note DESC, a.prix ASC, a.id_activite ASC
+    ";
+
+    $stmtActivites = $pdo->query($sqlActivites);
+    $activitesDb = $stmtActivites->fetchAll();
+} catch (PDOException $e) {
+    $activitesDb = [];
+}
+
+$nombreActivites = 0;
+$prixMinActivite = null;
+$placesRestantesTotal = 0;
+$noteMoyenneActivite = null;
+
+try {
+    $sqlStats = "
+        SELECT
+            COUNT(*) AS total,
+            MIN(a.prix) AS prix_min,
+            COALESCE(SUM(GREATEST(a.places_disponibles - COALESCE(res.qte_reservee, 0), 0)), 0) AS places_restantes_total,
+            AVG(a.note) AS note_moyenne
+        FROM activite a
+        LEFT JOIN (
+            SELECT
+                id_element,
+                SUM(quantite) AS qte_reservee
+            FROM ligne_panier
+            WHERE type_element = 'activite'
+            GROUP BY id_element
+        ) res ON res.id_element = a.id_activite
+    ";
+
+    $stmtStats = $pdo->query($sqlStats);
+    $stats = $stmtStats->fetch();
+
+    if ($stats) {
+        $nombreActivites = intval($stats["total"] ?? 0);
+        $prixMinActivite = $stats["prix_min"] !== null ? floatval($stats["prix_min"]) : null;
+        $placesRestantesTotal = intval($stats["places_restantes_total"] ?? 0);
+        $noteMoyenneActivite = $stats["note_moyenne"] !== null ? floatval($stats["note_moyenne"]) : null;
+    }
+} catch (PDOException $e) {
+    $nombreActivites = count($activitesDb);
+    $prixMinActivite = null;
+    $placesRestantesTotal = 0;
+    $noteMoyenneActivite = null;
+}
+
+$activitesJs = [];
+
+foreach ($activitesDb as $activite) {
+    $placesTotal = intval($activite["places_disponibles"] ?? 0);
+    $placesReservees = intval($activite["places_reservees"] ?? 0);
+    $placesRestantes = intval($activite["places_restantes"] ?? $placesTotal);
+
+    $activitesJs[] = [
+        "id" => intval($activite["id_activite"]),
+        "nom" => $activite["nom"] ?? "",
+        "destination" => $activite["destination"] ?? "",
+        "categorie" => $activite["categorie"] ?? "",
+        "niveau" => $activite["niveau"] ?? "",
+        "moment" => $activite["moment"] ?? "",
+        "duree" => floatval($activite["duree"] ?? 0),
+        "prix" => floatval($activite["prix"] ?? 0),
+        "note" => floatval($activite["note"] ?? 0),
+        "placesTotal" => $placesTotal,
+        "placesReservees" => $placesReservees,
+        "placesRestantes" => $placesRestantes,
+        "description" => $activite["description"] ?? "",
+        "image" => $activite["image"] ?? ""
+    ];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>VoyageVista - Activités</title>
 
   <style>
@@ -32,9 +239,6 @@
       cursor: pointer;
     }
 
-    /* =========================
-       NAVBAR
-    ========================= */
     header {
       position: sticky;
       top: 0;
@@ -45,7 +249,7 @@
     }
 
     .navbar {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       padding: 16px 24px;
       display: flex;
@@ -90,7 +294,8 @@
       color: #64748b;
     }
 
-    .nav-links {
+    .nav-links,
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -112,28 +317,6 @@
       color: #0e7490;
     }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      position: relative;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      font-size: 18px;
-      transition: 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: #ecfeff;
-      border-color: #67e8f9;
-    }
-
     .primary-btn,
     .secondary-btn,
     .dark-btn {
@@ -146,6 +329,7 @@
       font-weight: 800;
       transition: 0.2s;
       white-space: nowrap;
+      text-decoration: none;
     }
 
     .primary-btn {
@@ -182,20 +366,30 @@
       transform: translateY(-1px);
     }
 
-    /* =========================
-       NOTIFICATIONS
-    ========================= */
-    .notification-wrapper {
+    .icon-btn {
       position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
     }
 
-    .notification-badge {
+    .icon-btn:hover {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .badge-count {
       position: absolute;
-      top: -4px;
-      right: -4px;
-      width: 18px;
+      top: -5px;
+      right: -5px;
+      min-width: 18px;
       height: 18px;
-      border-radius: 50%;
+      padding: 0 5px;
+      border-radius: 999px;
       background: #ef4444;
       color: white;
       font-size: 11px;
@@ -204,6 +398,10 @@
       align-items: center;
       justify-content: center;
       border: 2px solid white;
+    }
+
+    .notification-wrapper {
+      position: relative;
     }
 
     .notification-dropdown {
@@ -300,16 +498,27 @@
       font-weight: 800;
     }
 
-    .notification-all:hover {
-      background: #155e75;
+    .avatar-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: #0e7490;
+      color: white;
+      font-weight: 900;
+      font-size: 15px;
+      box-shadow: 0 10px 18px rgba(14, 116, 144, 0.18);
+      transition: 0.2s;
     }
 
-    /* =========================
-       HERO
-    ========================= */
+    .avatar-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
     .page-hero {
       background:
-        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.75), rgba(5, 150, 105, 0.72)),
+        linear-gradient(135deg, rgba(15, 95, 117, 0.94), rgba(8, 145, 178, 0.78), rgba(5, 150, 105, 0.78)),
         url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80");
       background-size: cover;
       background-position: center;
@@ -317,12 +526,12 @@
     }
 
     .page-hero-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
-      padding: 56px 24px 72px;
+      padding: 64px 24px 82px;
       display: grid;
       grid-template-columns: 1fr 0.75fr;
-      gap: 40px;
+      gap: 42px;
       align-items: center;
     }
 
@@ -339,14 +548,15 @@
     }
 
     .page-hero h1 {
-      font-size: clamp(36px, 5vw, 58px);
+      max-width: 780px;
+      font-size: clamp(38px, 5vw, 62px);
       line-height: 1.05;
       letter-spacing: -0.04em;
       margin-bottom: 18px;
     }
 
     .page-hero p {
-      max-width: 680px;
+      max-width: 700px;
       color: #ecfeff;
       line-height: 1.7;
       font-size: 18px;
@@ -376,6 +586,7 @@
       margin-top: 4px;
       color: #cffafe;
       font-size: 13px;
+      font-weight: 700;
     }
 
     .hero-panel {
@@ -395,7 +606,7 @@
 
     .hero-panel-image {
       height: 220px;
-      background-image: url("https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=1100&q=80");
+      background-image: url("https://images.unsplash.com/photo-1533105079780-92b9be482077?auto=format&fit=crop&w=1100&q=80");
       background-size: cover;
       background-position: center;
     }
@@ -404,17 +615,19 @@
       padding: 22px;
     }
 
+    .hero-panel-body h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
     .hero-panel-body p {
       color: #64748b;
       font-size: 15px;
-      margin-top: 8px;
+      line-height: 1.6;
     }
 
-    /* =========================
-       FILTRES
-    ========================= */
     .main-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       padding: 0 24px 64px;
     }
@@ -484,7 +697,7 @@
     .filter-panel {
       margin-top: 18px;
       display: grid;
-      grid-template-columns: 1.4fr 1fr;
+      grid-template-columns: 1fr 1fr;
       gap: 18px;
       padding: 18px;
       background: #f8fafc;
@@ -496,21 +709,6 @@
       color: #0f172a;
       font-size: 16px;
       margin-bottom: 12px;
-    }
-
-    .check-list {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-    }
-
-    .check-list label {
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      color: #475569;
-      font-weight: 600;
-      font-size: 14px;
     }
 
     .filter-block input[type="range"] {
@@ -542,6 +740,13 @@
       text-align: right;
     }
 
+    .availability-info {
+      color: #64748b;
+      font-size: 14px;
+      line-height: 1.6;
+      font-weight: 700;
+    }
+
     .filter-actions {
       margin-top: 20px;
       display: flex;
@@ -554,9 +759,6 @@
       min-width: 170px;
     }
 
-    /* =========================
-       RESULTATS
-    ========================= */
     .results-header {
       margin-top: 42px;
       display: flex;
@@ -620,10 +822,11 @@
     }
 
     .activity-image {
-      height: 220px;
+      height: 210px;
       background-size: cover;
       background-position: center;
       position: relative;
+      background-color: #e2e8f0;
     }
 
     .activity-badge {
@@ -666,6 +869,16 @@
       padding: 7px 10px;
       font-size: 13px;
       font-weight: 800;
+    }
+
+    .activity-meta span.warning {
+      background: #fff7ed;
+      color: #ea580c;
+    }
+
+    .activity-meta span.full {
+      background: #fef2f2;
+      color: #dc2626;
     }
 
     .activity-footer {
@@ -715,9 +928,6 @@
       justify-content: flex-end;
     }
 
-    /* =========================
-       FOOTER
-    ========================= */
     footer {
       border-top: 1px solid #e2e8f0;
       background: white;
@@ -725,7 +935,7 @@
     }
 
     .footer-content {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       display: flex;
       justify-content: space-between;
@@ -749,9 +959,6 @@
       color: #0e7490;
     }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
     @media (max-width: 980px) {
       .nav-links {
         display: none;
@@ -776,8 +983,7 @@
       .navbar,
       .results-header,
       .footer-content,
-      .search-title-line,
-      .activity-footer {
+      .search-title-line {
         flex-direction: column;
         align-items: stretch;
       }
@@ -803,7 +1009,6 @@
       .filters-grid,
       .advanced-filters,
       .hero-stats,
-      .check-list,
       .activity-list {
         grid-template-columns: 1fr;
       }
@@ -814,7 +1019,15 @@
       }
 
       .filter-actions button,
-      .back-top-zone button,
+      .back-top-zone button {
+        width: 100%;
+      }
+
+      .activity-footer {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
       .activity-footer button {
         width: 100%;
       }
@@ -830,7 +1043,7 @@
 <body id="haut-page">
   <header>
     <nav class="navbar">
-      <button class="logo" onclick="window.location.href='Acceuil.html'">
+      <button class="logo" onclick="window.location.href='Acceuil.php'">
         <span class="logo-icon">VV</span>
         <span>
           <span class="logo-title">VoyageVista</span>
@@ -839,59 +1052,104 @@
       </button>
 
       <div class="nav-links">
-        <button onclick="window.location.href='Destination.html'">Destinations</button>
-        <button onclick="window.location.href='Transport.html'">Transports</button>
-        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
-        <button class="active" onclick="window.location.href='Activites.html'">Activités</button>
+        <?php if ((($_SESSION["user_role"] ?? "") === "admin") || (($_SESSION["user_role"] ?? "") === "gestionnaire")): ?>
+          <button onclick="window.location.href='Admin.php'">Admin</button>
+        <?php endif; ?>
+        <button onclick="window.location.href='Acceuil.php'">Accueil</button>
+        <button onclick="window.location.href='Destination.php'">Destinations</button>
+        <button onclick="window.location.href='Transport.php'">Transports</button>
+        <button onclick="window.location.href='Hebergements.php'">Hébergements</button>
+        <button class="active" onclick="window.location.href='Activites.php'">Activités</button>
+        <button onclick="window.location.href='Itineraires.php'">Itinéraires</button>
       </div>
 
       <div class="nav-actions">
-        <button class="secondary-btn" onclick="allerAuxFiltres()">Recherche</button>
-
         <div class="notification-wrapper">
-          <button class="icon-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
+          <button
+            class="icon-btn"
+            onclick="window.location.href='<?= $estConnecte ? "Notifications.php" : "Connexion.php?erreur=connexion_requise" ?>'"
+            aria-label="Notifications"
+          >
             🔔
-            <span class="notification-badge">3</span>
+
+            <?php if ($estConnecte && $nombreNotifications > 0): ?>
+              <span class="badge-count"><?= h($nombreNotifications) ?></span>
+            <?php endif; ?>
           </button>
 
           <div class="notification-dropdown">
             <div class="notification-header">
               <strong>Notifications</strong>
-              <span>3 nouvelles</span>
+
+              <?php if (!$estConnecte): ?>
+                <span>Connexion requise</span>
+              <?php elseif ($nombreNotifications > 0): ?>
+                <span><?= h($nombreNotifications) ?> nouvelle(s)</span>
+              <?php else: ?>
+                <span>Aucune nouvelle</span>
+              <?php endif; ?>
             </div>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : activité ajoutée')">
-              <span class="notification-icon">🎒</span>
-              <span>
-                <strong>Activité ajoutée</strong>
-                <small>Votre excursion a été ajoutée au panier.</small>
-              </span>
-            </button>
+            <?php if (!$estConnecte): ?>
+              <button class="notification-item" onclick="window.location.href='Connexion.php'">
+                <span class="notification-icon">🔐</span>
+                <span>
+                  <strong>Connexion requise</strong>
+                  <small>Connectez-vous pour consulter vos notifications.</small>
+                </span>
+              </button>
+            <?php elseif (count($notificationsPopup) === 0): ?>
+              <button class="notification-item" onclick="window.location.href='Notifications.php'">
+                <span class="notification-icon">🔔</span>
+                <span>
+                  <strong>Aucune notification</strong>
+                  <small>Vous n’avez pas encore de notification.</small>
+                </span>
+              </button>
+            <?php else: ?>
+              <?php foreach ($notificationsPopup as $notification): ?>
+                <button class="notification-item" onclick="window.location.href='Notifications.php'">
+                  <span class="notification-icon">
+                    <?= intval($notification["statut_lecture"]) === 0 ? "🔔" : "📩" ?>
+                  </span>
+                  <span>
+                    <strong><?= h($notification["titre"]) ?></strong>
+                    <small><?= h($notification["message"]) ?></small>
+                  </span>
+                </button>
+              <?php endforeach; ?>
+            <?php endif; ?>
 
-            <button class="notification-item" onclick="actionTemporaire('Notification : places limitées')">
-              <span class="notification-icon">⚠️</span>
-              <span>
-                <strong>Places limitées</strong>
-                <small>Plus que 4 places pour la randonnée guidée.</small>
-              </span>
-            </button>
-
-            <button class="notification-item" onclick="actionTemporaire('Notification : nouvelle expérience')">
-              <span class="notification-icon">✨</span>
-              <span>
-                <strong>Nouvelle expérience</strong>
-                <small>Une activité culturelle vient d'être ajoutée.</small>
-              </span>
-            </button>
-
-            <button class="notification-all" onclick="window.location.href='Notifications.html'">
+            <button
+              class="notification-all"
+              onclick="window.location.href='<?= $estConnecte ? "Notifications.php" : "Connexion.php" ?>'"
+            >
               Voir toutes les notifications
             </button>
           </div>
         </div>
 
-        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">🛒</button>
-        <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
+        <button
+          class="icon-btn"
+          onclick="window.location.href='<?= $estConnecte ? "Panier.php" : "Connexion.php?erreur=connexion_requise" ?>'"
+          aria-label="Panier"
+        >
+          🛒
+
+          <?php if ($estConnecte && $nombreElementsPanier > 0): ?>
+            <span class="badge-count"><?= h($nombreElementsPanier) ?></span>
+          <?php endif; ?>
+        </button>
+
+        <?php if ($estConnecte && $utilisateur): ?>
+          <button class="avatar-btn" onclick="window.location.href='Profil.php'" title="Mon profil">
+            <?= h($initiales) ?>
+          </button>
+        <?php else: ?>
+          <button class="primary-btn" onclick="window.location.href='Connexion.php'">
+            Connexion
+          </button>
+        <?php endif; ?>
       </div>
     </nav>
   </header>
@@ -901,24 +1159,28 @@
       <div class="page-hero-container">
         <div>
           <div class="breadcrumb">VoyageVista &gt; Activités</div>
-          <h1>Activités et organisation des expériences</h1>
+
+          <h1>Ajoutez des expériences à votre voyage</h1>
+
           <p>
-            Ajoutez des visites, excursions, activités sportives ou expériences culturelles
-            pour personnaliser votre voyage selon vos envies.
+            Comparez les activités disponibles selon la destination, le niveau,
+            le moment de la journée, la durée, le budget et surtout les places restantes.
           </p>
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <strong>60+</strong>
-              <span>activités proposées</span>
+              <strong><?= h($nombreActivites) ?></strong>
+              <span>activités disponibles</span>
             </div>
+
             <div class="hero-stat">
-              <strong>15</strong>
-              <span>catégories d’expérience</span>
+              <strong><?= $prixMinActivite !== null ? h(formatPrixCourt($prixMinActivite)) : "—" ?></strong>
+              <span>prix d’entrée le plus bas</span>
             </div>
+
             <div class="hero-stat">
-              <strong>24h/7j</strong>
-              <span>assistance voyage</span>
+              <strong><?= h($placesRestantesTotal) ?></strong>
+              <span>places restantes au total</span>
             </div>
           </div>
         </div>
@@ -926,9 +1188,12 @@
         <div class="hero-panel">
           <div class="hero-panel-inner">
             <div class="hero-panel-image"></div>
+
             <div class="hero-panel-body">
-              <h2>Construisez un séjour qui vous ressemble</h2>
-              <p>Choisissez vos expériences, vérifiez les places disponibles et ajoutez-les à votre panier.</p>
+              <h2>Réservez selon les places restantes</h2>
+              <p>
+                Les résultats prennent en compte les places déjà présentes dans les paniers.
+              </p>
             </div>
           </div>
         </div>
@@ -938,41 +1203,47 @@
     <section class="main-container">
       <form id="searchForm" class="search-card" onsubmit="rechercherActivite(event)">
         <div class="search-title-line">
-          <h2>Filtres de recherche</h2>
-          <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser les champs</button>
+          <h2>Affiner votre recherche</h2>
+          <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser</button>
         </div>
 
         <div class="filters-grid">
           <div class="field">
             <label for="destination">Destination</label>
-            <input id="destination" type="text" placeholder="Ex : Bali, Athènes, Interlaken" />
-          </div>
-
-          <div class="field">
-            <label for="dateActivite">Date souhaitée</label>
-            <input id="dateActivite" type="date" />
+            <input id="destination" type="text" placeholder="Ex : Bali, Athènes, Tokyo" />
           </div>
 
           <div class="field">
             <label for="categorie">Catégorie</label>
             <select id="categorie">
               <option value="">Toutes</option>
+              <option value="nature">Nature</option>
               <option value="culture">Culture</option>
               <option value="sport">Sport</option>
-              <option value="nature">Nature</option>
-              <option value="detente">Détente</option>
               <option value="gastronomie">Gastronomie</option>
+              <option value="detente">Détente</option>
             </select>
           </div>
 
           <div class="field">
             <label for="participants">Participants</label>
             <select id="participants">
-              <option value="1">1 participant</option>
-              <option value="2" selected>2 participants</option>
-              <option value="3">3 participants</option>
-              <option value="4">4 participants</option>
-              <option value="5">5 participants ou plus</option>
+              <option value="1">1 personne</option>
+              <option value="2" selected>2 personnes</option>
+              <option value="3">3 personnes</option>
+              <option value="4">4 personnes</option>
+              <option value="5">5 personnes ou plus</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="moment">Moment</label>
+            <select id="moment">
+              <option value="">Tous</option>
+              <option value="matin">Matin</option>
+              <option value="apres-midi">Après-midi</option>
+              <option value="soir">Soir</option>
+              <option value="journee">Journée</option>
             </select>
           </div>
         </div>
@@ -985,6 +1256,7 @@
               <option value="facile">Facile</option>
               <option value="moyen">Moyen</option>
               <option value="sportif">Sportif</option>
+              <option value="difficile">Difficile</option>
             </select>
           </div>
 
@@ -992,69 +1264,74 @@
             <label for="dureeMax">Durée maximum</label>
             <select id="dureeMax">
               <option value="">Toutes</option>
+              <option value="1">1 h max</option>
               <option value="2">2 h max</option>
               <option value="4">4 h max</option>
-              <option value="8">8 h max</option>
-              <option value="12">12 h max</option>
+              <option value="8">Journée max</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="moment">Moment</label>
-            <select id="moment">
-              <option value="">Tous</option>
-              <option value="matin">Matin</option>
-              <option value="apres-midi">Après-midi</option>
-              <option value="soir">Soir</option>
-              <option value="journee">Journée complète</option>
+            <label for="placeMin">Disponibilité minimum</label>
+            <select id="placeMin">
+              <option value="1">Au moins 1 place</option>
+              <option value="2" selected>Au moins 2 places</option>
+              <option value="4">Au moins 4 places</option>
+              <option value="6">Au moins 6 places</option>
+              <option value="10">Au moins 10 places</option>
             </select>
           </div>
         </div>
 
         <div class="filter-panel">
           <div class="filter-block">
-            <h3>Options</h3>
-            <div class="check-list">
-              <label><input class="option-filter" type="checkbox" value="guide" /> Guide inclus</label>
-              <label><input class="option-filter" type="checkbox" value="famille" /> Adapté famille</label>
-              <label><input class="option-filter" type="checkbox" value="repas" /> Repas inclus</label>
-              <label><input class="option-filter" type="checkbox" value="transport" /> Transport inclus</label>
-              <label><input class="option-filter" type="checkbox" value="exterieur" /> En extérieur</label>
-              <label><input class="option-filter" type="checkbox" value="annulation" /> Annulation possible</label>
+            <h3>Prix maximum</h3>
+
+            <input
+              id="prixRangeInput"
+              type="range"
+              min="0"
+              max="500"
+              value="500"
+              oninput="changerPrix(this.value)"
+            />
+
+            <div class="range-value">
+              <span>0 €</span>
+              <span id="prixRange">500 €</span>
+              <span>500 €</span>
             </div>
           </div>
 
           <div class="filter-block">
-            <h3>Prix maximum</h3>
-            <input id="prixRangeInput" type="range" min="10" max="300" value="300" oninput="changerPrix(this.value)" />
-            <div class="range-value">
-              <span>10 €</span>
-              <span id="prixRange">300 €</span>
-              <span>300 €</span>
-            </div>
+            <h3>Gestion des places</h3>
+            <p class="availability-info">
+              Le filtre Participants et le filtre Disponibilité minimum utilisent les places restantes.
+              Une activité est masquée si elle n’a plus assez de places disponibles.
+            </p>
           </div>
         </div>
 
         <div class="filter-actions">
-          <button class="primary-btn" type="submit">Rechercher</button>
+          <button class="primary-btn" type="submit">Afficher les résultats</button>
         </div>
       </form>
 
       <div class="results-header">
         <div>
-          <p>Résultats de recherche</p>
-          <h2><span id="nombreResultats">0</span> activité(s) disponible(s)</h2>
+          <p>Activités sélectionnées</p>
+          <h2><span id="nombreResultats">0</span> proposition(s)</h2>
         </div>
 
         <div class="sort-box">
           <label for="tri">Trier par</label>
-          <select id="tri" onchange="appliquerFiltres()">
-            <option value="recommande">Recommandé</option>
+
+          <select id="tri">
+            <option value="note">Meilleure note</option>
             <option value="prix-croissant">Prix croissant</option>
             <option value="prix-decroissant">Prix décroissant</option>
             <option value="duree">Durée la plus courte</option>
-            <option value="note">Meilleure note</option>
-            <option value="places">Places disponibles</option>
+            <option value="places">Places restantes</option>
           </select>
         </div>
       </div>
@@ -1064,7 +1341,7 @@
 
         <div id="emptyResult" class="empty-result">
           <strong>Aucune activité trouvée</strong>
-          <span>Modifiez les filtres puis cliquez sur Rechercher.</span>
+          <span>Modifiez vos critères ou réduisez le nombre de participants.</span>
         </div>
       </section>
 
@@ -1077,122 +1354,15 @@
   <footer>
     <div class="footer-content">
       <p>© 2026 VoyageVista — Projet Web dynamique</p>
+
       <div class="footer-links">
-        <button onclick="window.location.href='Contact.html'">Contact</button>
+        <button onclick="window.location.href='Contact.php'">Contact</button>
       </div>
     </div>
   </footer>
 
   <script>
-    const activites = [
-      {
-        id: 1,
-        nom: "Randonnée dans les rizières",
-        destination: "Bali",
-        categorie: "nature",
-        niveau: "facile",
-        moment: "matin",
-        duree: 3,
-        prix: 45,
-        note: 4.7,
-        places: 8,
-        description: "Balade guidée dans les rizières avec découverte des paysages et traditions locales.",
-        image: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=900&q=80",
-        options: ["guide", "famille", "exterieur", "annulation"],
-        tags: ["Nature", "Guide", "Famille"],
-        recommande: 1
-      },
-      {
-        id: 2,
-        nom: "Visite de l'Acropole",
-        destination: "Athènes",
-        categorie: "culture",
-        niveau: "facile",
-        moment: "matin",
-        duree: 2,
-        prix: 35,
-        note: 4.8,
-        places: 14,
-        description: "Visite culturelle guidée autour de l'Acropole et des monuments historiques d'Athènes.",
-        image: "https://images.unsplash.com/photo-1555993539-1732b0258235?auto=format&fit=crop&w=900&q=80",
-        options: ["guide", "famille", "annulation"],
-        tags: ["Culture", "Histoire", "Guide"],
-        recommande: 2
-      },
-      {
-        id: 3,
-        nom: "Parapente au-dessus des Alpes",
-        destination: "Interlaken",
-        categorie: "sport",
-        niveau: "sportif",
-        moment: "apres-midi",
-        duree: 2,
-        prix: 160,
-        note: 4.9,
-        places: 4,
-        description: "Expérience sportive avec vue panoramique sur les montagnes suisses.",
-        image: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80",
-        options: ["exterieur", "transport"],
-        tags: ["Sport", "Aventure", "Extérieur"],
-        recommande: 3
-      },
-      {
-        id: 4,
-        nom: "Cours de cuisine locale",
-        destination: "Marrakech",
-        categorie: "gastronomie",
-        niveau: "facile",
-        moment: "soir",
-        duree: 4,
-        prix: 75,
-        note: 4.6,
-        places: 10,
-        description: "Atelier culinaire avec préparation de plats locaux et dégustation sur place.",
-        image: "https://images.unsplash.com/photo-1556911220-bff31c812dba?auto=format&fit=crop&w=900&q=80",
-        options: ["repas", "famille", "annulation"],
-        tags: ["Gastronomie", "Repas inclus", "Famille"],
-        recommande: 4
-      },
-      {
-        id: 5,
-        nom: "Journée bateau et snorkeling",
-        destination: "Maldives",
-        categorie: "detente",
-        niveau: "moyen",
-        moment: "journee",
-        duree: 8,
-        prix: 220,
-        note: 4.9,
-        places: 6,
-        description: "Sortie en mer avec snorkeling, détente et découverte des lagons.",
-        image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80",
-        options: ["repas", "transport", "exterieur"],
-        tags: ["Détente", "Snorkeling", "Repas inclus"],
-        recommande: 5
-      },
-      {
-        id: 6,
-        nom: "Balade nocturne à Tokyo",
-        destination: "Tokyo",
-        categorie: "culture",
-        niveau: "facile",
-        moment: "soir",
-        duree: 3,
-        prix: 55,
-        note: 4.5,
-        places: 12,
-        description: "Découverte des quartiers animés, lumières urbaines et lieux emblématiques de Tokyo.",
-        image: "https://images.unsplash.com/photo-1542051841857-5f90071e7989?auto=format&fit=crop&w=900&q=80",
-        options: ["guide", "exterieur", "annulation"],
-        tags: ["Culture", "Soir", "Guide"],
-        recommande: 6
-      }
-    ];
-
-    function actionTemporaire(action) {
-      console.log("Action prévue :", action);
-      alert("Action prévue : " + action);
-    }
+    const activites = <?= json_encode($activitesJs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     function normaliserTexte(texte) {
       return texte
@@ -1202,6 +1372,13 @@
         .replace(/[\u0300-\u036f]/g, "");
     }
 
+    function formatPrixJs(montant) {
+      return montant.toLocaleString("fr-FR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+      }) + " €";
+    }
+
     function rechercherActivite(event) {
       event.preventDefault();
       appliquerFiltres();
@@ -1209,46 +1386,72 @@
 
     function getFiltresActifs() {
       const destination = normaliserTexte(document.getElementById("destination").value.trim());
-      const categorie = document.getElementById("categorie").value;
+      const categorie = normaliserTexte(document.getElementById("categorie").value);
       const participants = parseInt(document.getElementById("participants").value, 10);
-      const niveau = document.getElementById("niveau").value;
+      const placeMin = parseInt(document.getElementById("placeMin").value, 10);
+      const niveau = normaliserTexte(document.getElementById("niveau").value);
       const dureeMaxSelect = document.getElementById("dureeMax").value;
-      const moment = document.getElementById("moment").value;
+      const moment = normaliserTexte(document.getElementById("moment").value);
       const prixMax = parseInt(document.getElementById("prixRangeInput").value, 10);
       const tri = document.getElementById("tri").value;
-
-      const dureeMax = dureeMaxSelect === "" ? 999 : parseInt(dureeMaxSelect, 10);
-      const options = Array.from(document.querySelectorAll(".option-filter:checked"))
-        .map((checkbox) => checkbox.value);
 
       return {
         destination,
         categorie,
         participants,
+        placeMin,
         niveau,
-        dureeMax,
+        dureeMax: dureeMaxSelect === "" ? Infinity : parseFloat(dureeMaxSelect),
         moment,
         prixMax,
-        options,
         tri
       };
     }
 
     function appliquerFiltres() {
       const filtres = getFiltresActifs();
+      const minimumPlaces = Math.max(filtres.participants, filtres.placeMin);
 
       let resultats = activites.filter((activite) => {
-        const texteActivite = normaliserTexte(activite.nom + " " + activite.destination + " " + activite.categorie);
-        const correspondDestination = filtres.destination === "" || texteActivite.includes(filtres.destination);
-        const correspondCategorie = filtres.categorie === "" || activite.categorie === filtres.categorie;
-        const correspondParticipants = activite.places >= filtres.participants;
-        const correspondNiveau = filtres.niveau === "" || activite.niveau === filtres.niveau;
-        const correspondDuree = activite.duree <= filtres.dureeMax;
-        const correspondMoment = filtres.moment === "" || activite.moment === filtres.moment;
-        const correspondPrix = activite.prix <= filtres.prixMax;
-        const correspondOptions = filtres.options.every((option) => activite.options.includes(option));
+        const texteActivite = normaliserTexte(
+          activite.nom + " " +
+          activite.destination + " " +
+          activite.categorie + " " +
+          activite.niveau + " " +
+          activite.moment + " " +
+          activite.description
+        );
 
-        return correspondDestination && correspondCategorie && correspondParticipants && correspondNiveau && correspondDuree && correspondMoment && correspondPrix && correspondOptions;
+        const correspondDestination =
+          filtres.destination === "" || texteActivite.includes(filtres.destination);
+
+        const correspondCategorie =
+          filtres.categorie === "" || normaliserTexte(activite.categorie) === filtres.categorie;
+
+        const correspondNiveau =
+          filtres.niveau === "" || normaliserTexte(activite.niveau) === filtres.niveau;
+
+        const correspondMoment =
+          filtres.moment === "" || normaliserTexte(activite.moment) === filtres.moment;
+
+        const correspondDuree =
+          activite.duree <= filtres.dureeMax;
+
+        const correspondPrix =
+          activite.prix <= filtres.prixMax;
+
+        const correspondPlacesRestantes =
+          activite.placesRestantes >= minimumPlaces;
+
+        return (
+          correspondDestination &&
+          correspondCategorie &&
+          correspondNiveau &&
+          correspondMoment &&
+          correspondDuree &&
+          correspondPrix &&
+          correspondPlacesRestantes
+        );
       });
 
       resultats = trierActivites(resultats, filtres.tri);
@@ -1264,15 +1467,37 @@
         resultats.sort((a, b) => b.prix - a.prix);
       } else if (tri === "duree") {
         resultats.sort((a, b) => a.duree - b.duree);
-      } else if (tri === "note") {
-        resultats.sort((a, b) => b.note - a.note);
       } else if (tri === "places") {
-        resultats.sort((a, b) => b.places - a.places);
+        resultats.sort((a, b) => b.placesRestantes - a.placesRestantes);
       } else {
-        resultats.sort((a, b) => a.recommande - b.recommande);
+        resultats.sort((a, b) => b.note - a.note);
       }
 
       return resultats;
+    }
+
+    function getClassePlace(placesRestantes) {
+      if (placesRestantes <= 0) {
+        return "full";
+      }
+
+      if (placesRestantes <= 3) {
+        return "warning";
+      }
+
+      return "";
+    }
+
+    function getTextePlace(placesRestantes) {
+      if (placesRestantes <= 0) {
+        return "Complet";
+      }
+
+      if (placesRestantes === 1) {
+        return "1 place restante";
+      }
+
+      return placesRestantes + " places restantes";
     }
 
     function afficherActivites(liste) {
@@ -1294,27 +1519,41 @@
         const article = document.createElement("article");
         article.className = "activity-card";
 
+        const classePlace = getClassePlace(activite.placesRestantes);
+        const textePlace = getTextePlace(activite.placesRestantes);
+
         article.innerHTML = `
           <div class="activity-image" style="background-image: url('${activite.image}')">
             <span class="activity-badge">${activite.categorie}</span>
           </div>
+
           <div class="activity-body">
             <h3>${activite.nom}</h3>
+
             <p>${activite.description}</p>
 
             <div class="activity-meta">
-              ${activite.tags.map((tag) => `<span>${tag}</span>`).join("")}
+              <span>${activite.destination}</span>
               <span>${activite.duree} h</span>
-              <span>${activite.places} places</span>
               <span>Note ${activite.note.toFixed(1).replace(".", ",")}/5</span>
+              <span>${activite.niveau}</span>
+              <span>${activite.moment}</span>
+              <span class="${classePlace}">${textePlace}</span>
             </div>
 
             <div class="activity-footer">
               <div>
-                <strong>${activite.prix} €</strong>
+                <strong>${formatPrixJs(activite.prix)}</strong>
                 <small>par personne</small>
               </div>
-              <button class="primary-btn" onclick="actionTemporaire('Ajouter ${activite.nom} au panier')">Ajouter au panier</button>
+
+              <button
+                class="primary-btn"
+                type="button"
+                onclick="window.location.href='Voir.php?type=activite&id=${activite.id}'"
+              >
+                Voir
+              </button>
             </div>
           </div>
         `;
@@ -1330,13 +1569,11 @@
     function resetFiltres() {
       document.getElementById("searchForm").reset();
       document.getElementById("participants").value = "2";
-      document.getElementById("prixRangeInput").value = "300";
-      document.getElementById("prixRange").textContent = "300 €";
-      document.getElementById("tri").value = "recommande";
-    }
-
-    function allerAuxFiltres() {
-      document.getElementById("searchForm").scrollIntoView({ behavior: "smooth", block: "center" });
+      document.getElementById("placeMin").value = "2";
+      document.getElementById("prixRangeInput").value = "500";
+      document.getElementById("prixRange").textContent = "500 €";
+      document.getElementById("tri").value = "note";
+      afficherActivites(trierActivites(activites, "note"));
     }
 
     function retourHautPage() {
@@ -1346,8 +1583,20 @@
       });
     }
 
+    document.getElementById("tri").addEventListener("change", function () {
+      appliquerFiltres();
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
-      afficherActivites(trierActivites(activites, "recommande"));
+      const rechercheAccueil = localStorage.getItem("voyageVistaRecherche");
+
+      if (rechercheAccueil) {
+        document.getElementById("destination").value = rechercheAccueil;
+        localStorage.removeItem("voyageVistaRecherche");
+        appliquerFiltres();
+      } else {
+        afficherActivites(trierActivites(activites, "note"));
+      }
     });
   </script>
 </body>

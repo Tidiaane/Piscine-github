@@ -1,8 +1,201 @@
+<?php
+session_start();
+require_once "api/db.php";
+
+function h($valeur) {
+    return htmlspecialchars($valeur ?? "", ENT_QUOTES, "UTF-8");
+}
+
+function formatPrixCourt($prix) {
+    return number_format(floatval($prix), 0, ",", " ") . " €";
+}
+
+function getInitiales($prenom, $nom, $email) {
+    $prenom = trim($prenom ?? "");
+    $nom = trim($nom ?? "");
+    $email = trim($email ?? "");
+
+    $initiales = "";
+
+    if ($prenom !== "") {
+        $initiales .= strtoupper(substr($prenom, 0, 1));
+    }
+
+    if ($nom !== "") {
+        $initiales .= strtoupper(substr($nom, 0, 1));
+    }
+
+    if ($initiales === "" && $email !== "") {
+        $initiales = strtoupper(substr($email, 0, 2));
+    }
+
+    return $initiales !== "" ? $initiales : "U";
+}
+
+$estConnecte = isset($_SESSION["user_id"]);
+$idUtilisateur = $estConnecte ? $_SESSION["user_id"] : null;
+
+$utilisateur = null;
+$prenomUtilisateur = "";
+$nomUtilisateur = "";
+$emailUtilisateur = "";
+$initiales = "";
+
+if ($estConnecte) {
+    try {
+        $sqlUser = "SELECT * FROM utilisateur WHERE id_utilisateur = ?";
+        $stmtUser = $pdo->prepare($sqlUser);
+        $stmtUser->execute([$idUtilisateur]);
+        $utilisateur = $stmtUser->fetch();
+
+        if ($utilisateur) {
+            $prenomUtilisateur = $utilisateur["prenom"] ?? "";
+            $nomUtilisateur = $utilisateur["nom"] ?? "";
+            $emailUtilisateur = $utilisateur["email"] ?? "";
+            $initiales = getInitiales($prenomUtilisateur, $nomUtilisateur, $emailUtilisateur);
+        }
+    } catch (PDOException $e) {
+        $utilisateur = null;
+    }
+}
+
+$nombreElementsPanier = 0;
+
+if ($estConnecte) {
+    try {
+        $sqlPanier = "
+            SELECT COALESCE(SUM(lp.quantite), 0) AS total
+            FROM ligne_panier lp
+            JOIN panier p ON lp.id_panier = p.id_panier
+            WHERE p.id_utilisateur = ?
+        ";
+
+        $stmtPanier = $pdo->prepare($sqlPanier);
+        $stmtPanier->execute([$idUtilisateur]);
+        $resultPanier = $stmtPanier->fetch();
+
+        $nombreElementsPanier = intval($resultPanier["total"] ?? 0);
+    } catch (PDOException $e) {
+        $nombreElementsPanier = 0;
+    }
+}
+
+$nombreNotifications = 0;
+$notificationsPopup = [];
+
+if ($estConnecte) {
+    try {
+        $sqlNotifCount = "
+            SELECT COUNT(*) AS total
+            FROM notification
+            WHERE id_utilisateur = ?
+            AND statut_lecture = 0
+        ";
+
+        $stmtNotifCount = $pdo->prepare($sqlNotifCount);
+        $stmtNotifCount->execute([$idUtilisateur]);
+        $resultNotifCount = $stmtNotifCount->fetch();
+
+        $nombreNotifications = intval($resultNotifCount["total"] ?? 0);
+
+        $sqlNotifPopup = "
+            SELECT titre, message, date_envoi, statut_lecture
+            FROM notification
+            WHERE id_utilisateur = ?
+            ORDER BY date_envoi DESC
+            LIMIT 3
+        ";
+
+        $stmtNotifPopup = $pdo->prepare($sqlNotifPopup);
+        $stmtNotifPopup->execute([$idUtilisateur]);
+        $notificationsPopup = $stmtNotifPopup->fetchAll();
+    } catch (PDOException $e) {
+        $nombreNotifications = 0;
+        $notificationsPopup = [];
+    }
+}
+
+try {
+    $sql = "SELECT * FROM destination ORDER BY recommande ASC, note_moyenne DESC, id_destination ASC";
+    $stmt = $pdo->query($sql);
+    $destinationsDb = $stmt->fetchAll();
+} catch (PDOException $e) {
+    $destinationsDb = [];
+}
+
+$nombreDestinations = 0;
+$prixMinDestination = null;
+$noteMoyenneDestination = null;
+
+try {
+    $sqlStats = "
+        SELECT
+            COUNT(*) AS total,
+            MIN(prix) AS prix_min,
+            AVG(note_moyenne) AS note_moyenne
+        FROM destination
+    ";
+
+    $stmtStats = $pdo->query($sqlStats);
+    $stats = $stmtStats->fetch();
+
+    if ($stats) {
+        $nombreDestinations = intval($stats["total"] ?? 0);
+        $prixMinDestination = $stats["prix_min"] !== null ? floatval($stats["prix_min"]) : null;
+        $noteMoyenneDestination = $stats["note_moyenne"] !== null ? floatval($stats["note_moyenne"]) : null;
+    }
+} catch (PDOException $e) {
+    $nombreDestinations = count($destinationsDb);
+    $prixMinDestination = null;
+    $noteMoyenneDestination = null;
+}
+
+$destinationsJs = [];
+
+foreach ($destinationsDb as $destination) {
+    $styles = [];
+    $tags = [];
+
+    if (!empty($destination["styles"])) {
+        $decodedStyles = json_decode($destination["styles"], true);
+
+        if (is_array($decodedStyles)) {
+            $styles = $decodedStyles;
+        }
+    }
+
+    if (!empty($destination["tags"])) {
+        $decodedTags = json_decode($destination["tags"], true);
+
+        if (is_array($decodedTags)) {
+            $tags = $decodedTags;
+        }
+    }
+
+    $destinationsJs[] = [
+        "id" => intval($destination["id_destination"]),
+        "nom" => $destination["nom_destination"],
+        "pays" => $destination["pays"],
+        "categorie" => $destination["categorie"],
+        "duree" => intval($destination["duree"] ?? 7),
+        "saison" => $destination["saison"] ?? "ete",
+        "prix" => floatval($destination["prix"]),
+        "note" => floatval($destination["note_moyenne"]),
+        "description" => $destination["description"],
+        "image" => $destination["image"],
+        "styles" => $styles,
+        "tags" => $tags,
+        "recommande" => intval($destination["recommande"] ?? 1)
+    ];
+}
+?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>VoyageVista - Destinations</title>
 
   <style>
@@ -32,9 +225,6 @@
       cursor: pointer;
     }
 
-    /* =========================
-       NAVBAR
-    ========================= */
     header {
       position: sticky;
       top: 0;
@@ -45,7 +235,7 @@
     }
 
     .navbar {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       padding: 16px 24px;
       display: flex;
@@ -90,7 +280,8 @@
       color: #64748b;
     }
 
-    .nav-links {
+    .nav-links,
+    .nav-actions {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -112,28 +303,6 @@
       color: #0e7490;
     }
 
-    .nav-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .icon-btn {
-      position: relative;
-      width: 42px;
-      height: 42px;
-      border-radius: 50%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      font-size: 18px;
-      transition: 0.2s;
-    }
-
-    .icon-btn:hover {
-      background: #ecfeff;
-      border-color: #67e8f9;
-    }
-
     .primary-btn,
     .secondary-btn,
     .dark-btn {
@@ -146,6 +315,7 @@
       font-weight: 800;
       transition: 0.2s;
       white-space: nowrap;
+      text-decoration: none;
     }
 
     .primary-btn {
@@ -182,20 +352,30 @@
       transform: translateY(-1px);
     }
 
-    /* =========================
-       NOTIFICATIONS
-    ========================= */
-    .notification-wrapper {
+    .icon-btn {
       position: relative;
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      font-size: 18px;
+      transition: 0.2s;
     }
 
-    .notification-badge {
+    .icon-btn:hover {
+      background: #ecfeff;
+      border-color: #67e8f9;
+    }
+
+    .badge-count {
       position: absolute;
-      top: -4px;
-      right: -4px;
-      width: 18px;
+      top: -5px;
+      right: -5px;
+      min-width: 18px;
       height: 18px;
-      border-radius: 50%;
+      padding: 0 5px;
+      border-radius: 999px;
       background: #ef4444;
       color: white;
       font-size: 11px;
@@ -204,6 +384,10 @@
       align-items: center;
       justify-content: center;
       border: 2px solid white;
+    }
+
+    .notification-wrapper {
+      position: relative;
     }
 
     .notification-dropdown {
@@ -300,16 +484,27 @@
       font-weight: 800;
     }
 
-    .notification-all:hover {
-      background: #155e75;
+    .avatar-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 50%;
+      background: #0e7490;
+      color: white;
+      font-weight: 900;
+      font-size: 15px;
+      box-shadow: 0 10px 18px rgba(14, 116, 144, 0.18);
+      transition: 0.2s;
     }
 
-    /* =========================
-       HERO
-    ========================= */
+    .avatar-btn:hover {
+      background: #155e75;
+      transform: translateY(-1px);
+    }
+
     .page-hero {
       background:
-        linear-gradient(135deg, rgba(15, 95, 117, 0.92), rgba(8, 145, 178, 0.72), rgba(5, 150, 105, 0.75)),
+        linear-gradient(135deg, rgba(15, 95, 117, 0.94), rgba(8, 145, 178, 0.78), rgba(5, 150, 105, 0.78)),
         url("https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=1600&q=80");
       background-size: cover;
       background-position: center;
@@ -317,12 +512,12 @@
     }
 
     .page-hero-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
-      padding: 56px 24px 72px;
+      padding: 64px 24px 82px;
       display: grid;
       grid-template-columns: 1fr 0.75fr;
-      gap: 40px;
+      gap: 42px;
       align-items: center;
     }
 
@@ -339,14 +534,15 @@
     }
 
     .page-hero h1 {
-      font-size: clamp(36px, 5vw, 58px);
+      max-width: 780px;
+      font-size: clamp(38px, 5vw, 62px);
       line-height: 1.05;
       letter-spacing: -0.04em;
       margin-bottom: 18px;
     }
 
     .page-hero p {
-      max-width: 680px;
+      max-width: 700px;
       color: #ecfeff;
       line-height: 1.7;
       font-size: 18px;
@@ -376,6 +572,7 @@
       margin-top: 4px;
       color: #cffafe;
       font-size: 13px;
+      font-weight: 700;
     }
 
     .hero-panel {
@@ -404,17 +601,19 @@
       padding: 22px;
     }
 
+    .hero-panel-body h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
     .hero-panel-body p {
       color: #64748b;
       font-size: 15px;
-      margin-top: 8px;
+      line-height: 1.6;
     }
 
-    /* =========================
-       FILTRES ET RÉSULTATS
-    ========================= */
     .main-container {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       padding: 0 24px 64px;
     }
@@ -614,6 +813,7 @@
       background-size: cover;
       background-position: center;
       position: relative;
+      background-color: #e2e8f0;
     }
 
     .destination-badge {
@@ -705,9 +905,6 @@
       justify-content: flex-end;
     }
 
-    /* =========================
-       FOOTER
-    ========================= */
     footer {
       border-top: 1px solid #e2e8f0;
       background: white;
@@ -715,7 +912,7 @@
     }
 
     .footer-content {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: auto;
       display: flex;
       justify-content: space-between;
@@ -739,9 +936,6 @@
       color: #0e7490;
     }
 
-    /* =========================
-       RESPONSIVE
-    ========================= */
     @media (max-width: 980px) {
       .nav-links {
         display: none;
@@ -795,11 +989,13 @@
         grid-template-columns: 1fr;
       }
 
-      .filter-actions {
+      .filter-actions,
+      .back-top-zone {
         justify-content: stretch;
       }
 
-      .filter-actions button {
+      .filter-actions button,
+      .back-top-zone button {
         width: 100%;
       }
 
@@ -814,7 +1010,7 @@
 <body id="haut-page">
   <header>
     <nav class="navbar">
-      <button class="logo" onclick="window.location.href='Acceuil.html'">
+      <button class="logo" onclick="window.location.href='Acceuil.php'">
         <span class="logo-icon">VV</span>
         <span>
           <span class="logo-title">VoyageVista</span>
@@ -823,59 +1019,104 @@
       </button>
 
       <div class="nav-links">
-        <button class="active" onclick="window.location.href='Destination.html'">Destinations</button>
-        <button onclick="window.location.href='Transport.html'">Transports</button>
-        <button onclick="window.location.href='Hebergements.html'">Hébergements</button>
-        <button onclick="window.location.href='Activites.html'">Activités</button>
+        <?php if ((($_SESSION["user_role"] ?? "") === "admin") || (($_SESSION["user_role"] ?? "") === "gestionnaire")): ?>
+          <button onclick="window.location.href='Admin.php'">Admin</button>
+        <?php endif; ?>
+        <button onclick="window.location.href='Acceuil.php'">Accueil</button>
+        <button class="active" onclick="window.location.href='Destination.php'">Destinations</button>
+        <button onclick="window.location.href='Transport.php'">Transports</button>
+        <button onclick="window.location.href='Hebergements.php'">Hébergements</button>
+        <button onclick="window.location.href='Activites.php'">Activités</button>
+        <button onclick="window.location.href='Itineraires.php'">Itinéraires</button>
       </div>
 
       <div class="nav-actions">
-        <button class="secondary-btn" onclick="allerAuxFiltres()">Recherche</button>
-
         <div class="notification-wrapper">
-          <button class="icon-btn" onclick="window.location.href='Notifications.html'" aria-label="Notifications">
+          <button
+            class="icon-btn"
+            onclick="window.location.href='<?= $estConnecte ? "Notifications.php" : "Connexion.php?erreur=connexion_requise" ?>'"
+            aria-label="Notifications"
+          >
             🔔
-            <span class="notification-badge">3</span>
+
+            <?php if ($estConnecte && $nombreNotifications > 0): ?>
+              <span class="badge-count"><?= h($nombreNotifications) ?></span>
+            <?php endif; ?>
           </button>
 
           <div class="notification-dropdown">
             <div class="notification-header">
               <strong>Notifications</strong>
-              <span>3 nouvelles</span>
+
+              <?php if (!$estConnecte): ?>
+                <span>Connexion requise</span>
+              <?php elseif ($nombreNotifications > 0): ?>
+                <span><?= h($nombreNotifications) ?> nouvelle(s)</span>
+              <?php else: ?>
+                <span>Aucune nouvelle</span>
+              <?php endif; ?>
             </div>
 
-            <button class="notification-item" onclick="window.location.href='Notifications.html'">
-              <span class="notification-icon">🌍</span>
-              <span>
-                <strong>Nouvelle destination</strong>
-                <small>Tokyo vient d’être ajoutée au catalogue.</small>
-              </span>
-            </button>
+            <?php if (!$estConnecte): ?>
+              <button class="notification-item" onclick="window.location.href='Connexion.php'">
+                <span class="notification-icon">🔐</span>
+                <span>
+                  <strong>Connexion requise</strong>
+                  <small>Connectez-vous pour consulter vos notifications.</small>
+                </span>
+              </button>
+            <?php elseif (count($notificationsPopup) === 0): ?>
+              <button class="notification-item" onclick="window.location.href='Notifications.php'">
+                <span class="notification-icon">🔔</span>
+                <span>
+                  <strong>Aucune notification</strong>
+                  <small>Vous n’avez pas encore de notification.</small>
+                </span>
+              </button>
+            <?php else: ?>
+              <?php foreach ($notificationsPopup as $notification): ?>
+                <button class="notification-item" onclick="window.location.href='Notifications.php'">
+                  <span class="notification-icon">
+                    <?= intval($notification["statut_lecture"]) === 0 ? "🔔" : "📩" ?>
+                  </span>
+                  <span>
+                    <strong><?= h($notification["titre"]) ?></strong>
+                    <small><?= h($notification["message"]) ?></small>
+                  </span>
+                </button>
+              <?php endforeach; ?>
+            <?php endif; ?>
 
-            <button class="notification-item" onclick="window.location.href='Notifications.html'">
-              <span class="notification-icon">💸</span>
-              <span>
-                <strong>Offre spéciale</strong>
-                <small>-15% sur plusieurs séjours en Europe.</small>
-              </span>
-            </button>
-
-            <button class="notification-item" onclick="window.location.href='Panier.html'">
-              <span class="notification-icon">🛒</span>
-              <span>
-                <strong>Panier sauvegardé</strong>
-                <small>Votre sélection de voyage est conservée.</small>
-              </span>
-            </button>
-
-            <button class="notification-all" onclick="window.location.href='Notifications.html'">
+            <button
+              class="notification-all"
+              onclick="window.location.href='<?= $estConnecte ? "Notifications.php" : "Connexion.php" ?>'"
+            >
               Voir toutes les notifications
             </button>
           </div>
         </div>
 
-        <button class="icon-btn" onclick="window.location.href='Panier.html'" aria-label="Panier">🛒</button>
-        <button class="primary-btn" onclick="window.location.href='Connexion.html'">Connexion</button>
+        <button
+          class="icon-btn"
+          onclick="window.location.href='<?= $estConnecte ? "Panier.php" : "Connexion.php?erreur=connexion_requise" ?>'"
+          aria-label="Panier"
+        >
+          🛒
+
+          <?php if ($estConnecte && $nombreElementsPanier > 0): ?>
+            <span class="badge-count"><?= h($nombreElementsPanier) ?></span>
+          <?php endif; ?>
+        </button>
+
+        <?php if ($estConnecte && $utilisateur): ?>
+          <button class="avatar-btn" onclick="window.location.href='Profil.php'" title="Mon profil">
+            <?= h($initiales) ?>
+          </button>
+        <?php else: ?>
+          <button class="primary-btn" onclick="window.location.href='Connexion.php'">
+            Connexion
+          </button>
+        <?php endif; ?>
       </div>
     </nav>
   </header>
@@ -885,24 +1126,28 @@
       <div class="page-hero-container">
         <div>
           <div class="breadcrumb">VoyageVista &gt; Destinations</div>
-          <h1>Catalogue des destinations</h1>
+
+          <h1>Découvrez des destinations adaptées à votre prochain voyage</h1>
+
           <p>
-            Explorez des destinations adaptées à votre style de voyage : plage, montagne,
-            aventure, culture ou détente. Comparez les prix, les durées et les catégories avant de composer votre séjour.
+            Comparez les séjours selon vos envies, votre budget et votre style de voyage,
+            puis consultez chaque fiche pour construire un panier complet.
           </p>
 
           <div class="hero-stats">
             <div class="hero-stat">
-              <strong>35+</strong>
-              <span>destinations</span>
+              <strong><?= h($nombreDestinations) ?></strong>
+              <span>destinations disponibles</span>
             </div>
+
             <div class="hero-stat">
-              <strong>12</strong>
-              <span>pays proposés</span>
+              <strong><?= $prixMinDestination !== null ? h(formatPrixCourt($prixMinDestination)) : "—" ?></strong>
+              <span>prix d’entrée le plus bas</span>
             </div>
+
             <div class="hero-stat">
-              <strong>5</strong>
-              <span>styles de voyage</span>
+              <strong><?= $noteMoyenneDestination !== null ? h(number_format($noteMoyenneDestination, 1, ",", " ")) . "/5" : "—" ?></strong>
+              <span>note moyenne des séjours</span>
             </div>
           </div>
         </div>
@@ -910,9 +1155,12 @@
         <div class="hero-panel">
           <div class="hero-panel-inner">
             <div class="hero-panel-image"></div>
+
             <div class="hero-panel-body">
-              <h2>Choisissez votre prochaine aventure</h2>
-              <p>Sélectionnez une destination, consultez les détails, puis ajoutez transports, hébergements et activités.</p>
+              <h2>Une sélection claire pour décider plus vite</h2>
+              <p>
+                Affinez vos recherches, comparez les propositions et ouvrez la fiche d’une destination avant de l’ajouter à votre séjour.
+              </p>
             </div>
           </div>
         </div>
@@ -922,8 +1170,8 @@
     <section class="main-container">
       <form id="searchForm" class="search-card" onsubmit="rechercherDestination(event)">
         <div class="search-title-line">
-          <h2>Filtres de recherche</h2>
-          <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser les champs</button>
+          <h2>Affiner votre recherche</h2>
+          <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser</button>
         </div>
 
         <div class="filters-grid">
@@ -933,9 +1181,9 @@
           </div>
 
           <div class="field">
-            <label for="categorie">Catégorie</label>
+            <label for="categorie">Type de séjour</label>
             <select id="categorie">
-              <option value="">Toutes</option>
+              <option value="">Tous</option>
               <option value="plage">Plage</option>
               <option value="montagne">Montagne</option>
               <option value="culture">Culture</option>
@@ -945,18 +1193,19 @@
           </div>
 
           <div class="field">
-            <label for="duree">Durée</label>
+            <label for="duree">Durée souhaitée</label>
             <select id="duree">
               <option value="">Toutes</option>
               <option value="3">3 jours max</option>
               <option value="5">5 jours max</option>
               <option value="7">7 jours max</option>
               <option value="10">10 jours max</option>
+              <option value="15">15 jours max</option>
             </select>
           </div>
 
           <div class="field">
-            <label for="saison">Saison conseillée</label>
+            <label for="saison">Période idéale</label>
             <select id="saison">
               <option value="">Toutes</option>
               <option value="printemps">Printemps</option>
@@ -969,7 +1218,8 @@
 
         <div class="filter-panel">
           <div class="filter-block">
-            <h3>Styles de voyage</h3>
+            <h3>Expérience recherchée</h3>
+
             <div class="check-list">
               <label><input class="style-filter" type="checkbox" value="famille" /> Famille</label>
               <label><input class="style-filter" type="checkbox" value="couple" /> Couple</label>
@@ -981,29 +1231,39 @@
           </div>
 
           <div class="filter-block">
-            <h3>Prix maximum</h3>
-            <input id="prixRangeInput" type="range" min="300" max="2000" value="2000" oninput="changerPrix(this.value)" />
+            <h3>Budget maximum</h3>
+
+            <input
+              id="prixRangeInput"
+              type="range"
+              min="300"
+              max="2500"
+              value="2500"
+              oninput="changerPrix(this.value)"
+            />
+
             <div class="range-value">
               <span>300 €</span>
-              <span id="prixRange">2000 €</span>
-              <span>2000 €</span>
+              <span id="prixRange">2500 €</span>
+              <span>2500 €</span>
             </div>
           </div>
         </div>
 
         <div class="filter-actions">
-          <button class="primary-btn" type="submit">Rechercher</button>
+          <button class="primary-btn" type="submit">Afficher les résultats</button>
         </div>
       </form>
 
       <div class="results-header">
         <div>
-          <p>Résultats de recherche</p>
-          <h2><span id="nombreResultats">0</span> destination(s) disponible(s)</h2>
+          <p>Destinations sélectionnées</p>
+          <h2><span id="nombreResultats">0</span> proposition(s)</h2>
         </div>
 
         <div class="sort-box">
           <label for="tri">Trier par</label>
+
           <select id="tri">
             <option value="recommande">Recommandé</option>
             <option value="prix-croissant">Prix croissant</option>
@@ -1019,7 +1279,7 @@
 
         <div id="emptyResult" class="empty-result">
           <strong>Aucune destination trouvée</strong>
-          <span>Modifiez les filtres puis cliquez sur Rechercher.</span>
+          <span>Modifiez vos critères pour afficher d’autres propositions.</span>
         </div>
       </section>
 
@@ -1032,110 +1292,15 @@
   <footer>
     <div class="footer-content">
       <p>© 2026 VoyageVista — Projet Web dynamique</p>
+
       <div class="footer-links">
-        <button onclick="window.location.href='Contact.html'">Contact</button>
+        <button onclick="window.location.href='Contact.php'">Contact</button>
       </div>
     </div>
   </footer>
 
   <script>
-    const destinations = [
-      {
-        id: 1,
-        nom: "Bali",
-        pays: "Indonésie",
-        categorie: "plage",
-        duree: 7,
-        saison: "ete",
-        prix: 899,
-        note: 4.8,
-        description: "Plages tropicales, rizières, temples et ambiance détente pour un séjour complet.",
-        image: "https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=900&q=80",
-        styles: ["couple", "amis", "nature"],
-        tags: ["Plage", "Nature", "Détente"],
-        recommande: 1
-      },
-      {
-        id: 2,
-        nom: "Interlaken",
-        pays: "Suisse",
-        categorie: "montagne",
-        duree: 5,
-        saison: "hiver",
-        prix: 749,
-        note: 4.7,
-        description: "Destination alpine idéale pour les randonnées, les sports d'hiver et les paysages de montagne.",
-        image: "https://images.unsplash.com/photo-1500048993953-d23a436266cf?auto=format&fit=crop&w=900&q=80",
-        styles: ["sport", "nature", "amis"],
-        tags: ["Montagne", "Sport", "Nature"],
-        recommande: 2
-      },
-      {
-        id: 3,
-        nom: "Athènes",
-        pays: "Grèce",
-        categorie: "culture",
-        duree: 4,
-        saison: "printemps",
-        prix: 529,
-        note: 4.4,
-        description: "Ville historique parfaite pour découvrir monuments antiques, musées et gastronomie locale.",
-        image: "https://images.unsplash.com/photo-1603565816030-6b389eeb23cb?auto=format&fit=crop&w=900&q=80",
-        styles: ["culture", "couple", "famille"],
-        tags: ["Culture", "Ville", "Histoire"],
-        recommande: 3
-      },
-      {
-        id: 4,
-        nom: "Marrakech",
-        pays: "Maroc",
-        categorie: "culture",
-        duree: 5,
-        saison: "automne",
-        prix: 610,
-        note: 4.5,
-        description: "Souks, palais, jardins et excursions dans le désert pour un voyage dépaysant.",
-        image: "https://images.unsplash.com/photo-1597212720419-b3d8300b5004?auto=format&fit=crop&w=900&q=80",
-        styles: ["culture", "couple", "amis"],
-        tags: ["Culture", "Désert", "Gastronomie"],
-        recommande: 4
-      },
-      {
-        id: 5,
-        nom: "Tokyo",
-        pays: "Japon",
-        categorie: "aventure",
-        duree: 10,
-        saison: "printemps",
-        prix: 1490,
-        note: 4.9,
-        description: "Grande ville moderne, quartiers animés, temples, technologie et découverte culturelle.",
-        image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?auto=format&fit=crop&w=900&q=80",
-        styles: ["culture", "amis", "aventure"],
-        tags: ["Ville", "Culture", "Aventure"],
-        recommande: 5
-      },
-      {
-        id: 6,
-        nom: "Maldives",
-        pays: "Maldives",
-        categorie: "detente",
-        duree: 7,
-        saison: "hiver",
-        prix: 1790,
-        note: 4.9,
-        description: "Séjour premium orienté détente, lagons, plages et hébergements proches de l'eau.",
-        image: "https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=900&q=80",
-        styles: ["couple", "nature"],
-        tags: ["Détente", "Plage", "Premium"],
-        recommande: 6
-      }
-    ];
-
-    function actionTemporaire(action) {
-      console.log("Action prévue :", action);
-      alert("Action prévue : " + action);
-    }
+    const destinations = <?= json_encode($destinationsJs, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 
     function normaliserTexte(texte) {
       return texte
@@ -1152,20 +1317,19 @@
 
     function getFiltresActifs() {
       const destination = normaliserTexte(document.getElementById("destination").value.trim());
-      const categorie = document.getElementById("categorie").value;
+      const categorie = normaliserTexte(document.getElementById("categorie").value);
       const dureeSelect = document.getElementById("duree").value;
-      const saison = document.getElementById("saison").value;
+      const saison = normaliserTexte(document.getElementById("saison").value);
       const prixMax = parseInt(document.getElementById("prixRangeInput").value, 10);
       const tri = document.getElementById("tri").value;
 
-      const dureeMax = dureeSelect === "" ? 999 : parseInt(dureeSelect, 10);
       const styles = Array.from(document.querySelectorAll(".style-filter:checked"))
-        .map((checkbox) => checkbox.value);
+        .map((checkbox) => normaliserTexte(checkbox.value));
 
       return {
         destination,
         categorie,
-        dureeMax,
+        dureeMax: dureeSelect === "" ? Infinity : parseInt(dureeSelect, 10),
         saison,
         prixMax,
         styles,
@@ -1177,15 +1341,44 @@
       const filtres = getFiltresActifs();
 
       let resultats = destinations.filter((destination) => {
-        const texteDestination = normaliserTexte(destination.nom + " " + destination.pays + " " + destination.categorie);
-        const correspondRecherche = filtres.destination === "" || texteDestination.includes(filtres.destination);
-        const correspondCategorie = filtres.categorie === "" || destination.categorie === filtres.categorie;
-        const correspondDuree = destination.duree <= filtres.dureeMax;
-        const correspondSaison = filtres.saison === "" || destination.saison === filtres.saison;
-        const correspondPrix = destination.prix <= filtres.prixMax;
-        const correspondStyles = filtres.styles.every((style) => destination.styles.includes(style));
+        const texteDestination = normaliserTexte(
+          destination.nom + " " +
+          destination.pays + " " +
+          destination.categorie + " " +
+          destination.description + " " +
+          destination.tags.join(" ")
+        );
 
-        return correspondRecherche && correspondCategorie && correspondDuree && correspondSaison && correspondPrix && correspondStyles;
+        const categorieDestination = normaliserTexte(destination.categorie);
+        const saisonDestination = normaliserTexte(destination.saison);
+        const stylesDestination = destination.styles.map((style) => normaliserTexte(style));
+
+        const correspondRecherche =
+          filtres.destination === "" || texteDestination.includes(filtres.destination);
+
+        const correspondCategorie =
+          filtres.categorie === "" || categorieDestination === filtres.categorie;
+
+        const correspondDuree =
+          destination.duree <= filtres.dureeMax;
+
+        const correspondSaison =
+          filtres.saison === "" || saisonDestination === filtres.saison;
+
+        const correspondPrix =
+          destination.prix <= filtres.prixMax;
+
+        const correspondStyles =
+          filtres.styles.every((style) => stylesDestination.includes(style));
+
+        return (
+          correspondRecherche &&
+          correspondCategorie &&
+          correspondDuree &&
+          correspondSaison &&
+          correspondPrix &&
+          correspondStyles
+        );
       });
 
       resultats = trierDestinations(resultats, filtres.tri);
@@ -1229,26 +1422,39 @@
         const article = document.createElement("article");
         article.className = "destination-card";
 
+        const tagsHtml = destination.tags
+          .map((tag) => `<span>${tag}</span>`)
+          .join("");
+
         article.innerHTML = `
           <div class="destination-image" style="background-image: url('${destination.image}')">
             <span class="destination-badge">${destination.categorie}</span>
           </div>
+
           <div class="destination-body">
             <h3>${destination.nom}, ${destination.pays}</h3>
+
             <p>${destination.description}</p>
 
             <div class="destination-meta">
-              ${destination.tags.map((tag) => `<span>${tag}</span>`).join("")}
+              ${tagsHtml}
               <span>${destination.duree} jours</span>
               <span>Note ${destination.note.toFixed(1).replace(".", ",")}/5</span>
             </div>
 
             <div class="destination-footer">
               <div>
-                <strong>${destination.prix} €</strong>
+                <strong>${destination.prix.toLocaleString("fr-FR")} €</strong>
                 <small>à partir de</small>
               </div>
-              <button class="primary-btn" onclick="window.location.href='Destination.html'">Voir</button>
+
+              <button
+                class="primary-btn"
+                type="button"
+                onclick="window.location.href='Voir.php?type=destination&id=${destination.id}'"
+              >
+                Voir
+              </button>
             </div>
           </div>
         `;
@@ -1263,13 +1469,10 @@
 
     function resetFiltres() {
       document.getElementById("searchForm").reset();
-      document.getElementById("prixRangeInput").value = "2000";
-      document.getElementById("prixRange").textContent = "2000 €";
+      document.getElementById("prixRangeInput").value = "2500";
+      document.getElementById("prixRange").textContent = "2500 €";
       document.getElementById("tri").value = "recommande";
-    }
-
-    function allerAuxFiltres() {
-      document.getElementById("searchForm").scrollIntoView({ behavior: "smooth", block: "center" });
+      afficherDestinations(trierDestinations(destinations, "recommande"));
     }
 
     function retourHautPage() {
@@ -1279,8 +1482,20 @@
       });
     }
 
+    document.getElementById("tri").addEventListener("change", function () {
+      appliquerFiltres();
+    });
+
     document.addEventListener("DOMContentLoaded", function () {
-      afficherDestinations(trierDestinations(destinations, "recommande"));
+      const rechercheAccueil = localStorage.getItem("voyageVistaRecherche");
+
+      if (rechercheAccueil) {
+        document.getElementById("destination").value = rechercheAccueil;
+        localStorage.removeItem("voyageVistaRecherche");
+        appliquerFiltres();
+      } else {
+        afficherDestinations(trierDestinations(destinations, "recommande"));
+      }
     });
   </script>
 </body>
