@@ -165,6 +165,83 @@ CREATE TABLE IF NOT EXISTS `destination_voyageur` (
   KEY `idx_destination_voyageur_utilisateur` (`id_utilisateur`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+  --
+-- Déchargement des données de la table `destination_voyageur`
+--
+
+INSERT INTO `destination_voyageur` (`id_destination_voyageur`, `id_destination`, `id_utilisateur`, `role_voyageur`, `date_ajout`) VALUES
+(1, 2, 1, 'voyageur', '2026-05-29 17:19:54');
+
+-- --------------------------------------------------------
+
+
+
+--
+-- Structure de la table `hebergement`
+--
+
+DROP TABLE IF EXISTS `hebergement`;
+CREATE TABLE IF NOT EXISTS `hebergement` (
+  `id_hebergement` int NOT NULL AUTO_INCREMENT,
+  `nom` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `destination` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `pays` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `capacite` int DEFAULT '2',
+  `prix` decimal(10,2) NOT NULL,
+  `note` decimal(3,1) DEFAULT '0.0',
+  `etoiles` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `disponibilite` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `image` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `equipements` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `tags` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `date_arrivee` date DEFAULT NULL,
+  `date_depart` date DEFAULT NULL,
+  `recommande` int DEFAULT '1',
+  PRIMARY KEY (`id_hebergement`)
+) ENGINE=MyISAM AUTO_INCREMENT=33 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `hebergement`
+--
+
+INSERT INTO `hebergement` (`id_hebergement`, `nom`, `destination`, `pays`, `type`, `capacite`, `prix`, `note`, `etoiles`, `disponibilite`, `description`, `image`, `equipements`, `tags`, `date_arrivee`, `date_depart`, `recommande`) VALUES
+(1, 'Paris Boutique Hotel', 'Paris', 'France', 'hotel', 2, 135.00, 4.4, '★★★★☆', 'Disponible', 'Hôtel élégant proche du centre de Paris, idéal pour un séjour culturel.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\", \"petit-dejeuner\", \"annulation\"]', '[\"Hôtel\", \"Centre-ville\", \"Petit-déjeuner\", \"Wi-Fi\"]', '2026-07-10', '2026-07-15', 6),
+(2, 'Tokyo Urban Stay', 'Tokyo', 'Japon', 'appartement', 3, 145.00, 4.6, '★★★★☆', 'Disponible', 'Appartement moderne dans un quartier animé de Tokyo, proche des transports.', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\", \"annulation\"]', '[\"Appartement\", \"Centre-ville\", \"Wi-Fi\", \"Flexible\"]', '2026-08-03', '2026-08-10', 7),
+(3, 'Marrakech Riad Palace', 'Marrakech', 'Maroc', 'hotel', 2, 105.00, 4.7, '★★★★★', 'Plus que 4 chambres disponibles', 'Riad traditionnel avec décoration marocaine, patio intérieur et accès rapide aux souks.', 'https://images.unsplash.com/photo-1597212720419-b3d8300b5004?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"petit-dejeuner\", \"wifi\"]', '[\"Riad\", \"Piscine\", \"Petit-déjeuner\", \"Culture\"]', '2026-09-12', '2026-09-18', 8),
+(4, 'Maldives Lagoon Resort', 'Maldives', 'Maldives', 'resort', 2, 420.00, 4.9, '★★★★★', 'Dernières villas disponibles', 'Resort premium au bord du lagon, parfait pour un séjour détente.', 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"petit-dejeuner\", \"annulation\", \"wifi\"]', '[\"Resort\", \"Lagon\", \"Premium\", \"Piscine\"]', '2026-12-05', '2026-12-12', 9),
+(5, 'Swiss Alpine Chalet', 'Interlaken', 'Suisse', 'villa', 5, 260.00, 4.8, '★★★★★', 'Disponible', 'Chalet confortable avec vue sur les montagnes, adapté aux familles et groupes.', 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\", \"annulation\"]', '[\"Chalet\", \"Montagne\", \"5 voyageurs\", \"Vue alpine\"]', '2026-02-14', '2026-02-21', 10),
+(6, 'Athens History Hotel', 'Athènes', 'Grèce', 'hotel', 2, 92.00, 4.2, '★★★★☆', 'Disponible', 'Hôtel pratique pour visiter les monuments historiques et le centre ville.', 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\", \"petit-dejeuner\"]', '[\"Hôtel\", \"Culture\", \"Centre-ville\", \"Petit-déjeuner\"]', '2026-08-05', '2026-08-12', 11),
+(7, 'Bali Garden Villa', 'Bali', 'Indonésie', 'villa', 4, 195.00, 4.6, '★★★★☆', 'Plus que 2 disponibilités', 'Villa avec jardin privé et piscine, idéale pour un séjour entre amis ou en famille.', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"wifi\", \"annulation\"]', '[\"Villa\", \"Piscine\", \"4 voyageurs\", \"Jardin privé\"]', '2026-07-10', '2026-07-20', 12),
+(8, 'Lisbon Alfama Hotel', 'Lisbonne', 'Portugal', 'hotel', 2, 118.00, 4.5, '★★★★☆', 'Disponible', 'Hôtel de charme dans l’Alfama, proche des belvédères et du tram 28.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\", \"petit-dejeuner\"]', '[\"Hôtel\", \"Centre-ville\", \"Wi-Fi\"]', '2026-07-02', '2026-07-07', 20),
+(9, 'Northern Lights Lodge', 'Reykjavik', 'Islande', 'lodge', 2, 210.00, 4.7, '★★★★☆', 'Plus que 3 chambres disponibles', 'Lodge confortable pour observer les paysages islandais et les aurores.', 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\", \"annulation\"]', '[\"Lodge\", \"Nature\", \"Aurores\"]', '2026-11-18', '2026-11-24', 21),
+(10, 'Seoul Hanok Stay', 'Séoul', 'Corée du Sud', 'maison', 3, 132.00, 4.6, '★★★★☆', 'Disponible', 'Hébergement traditionnel rénové dans un quartier historique de Séoul.', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"centre\", \"annulation\"]', '[\"Hanok\", \"Culture\", \"Centre-ville\"]', '2026-10-12', '2026-10-20', 22),
+(11, 'Manhattan Skyline Hotel', 'New York', 'États-Unis', 'hotel', 2, 245.00, 4.4, '★★★★☆', 'Disponible', 'Hôtel urbain avec accès rapide aux principales attractions de Manhattan.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\"]', '[\"Ville\", \"Skyline\", \"Métro proche\"]', '2026-09-05', '2026-09-12', 23),
+(12, 'Quebec Old Town Inn', 'Québec', 'Canada', 'hotel', 2, 128.00, 4.5, '★★★★☆', 'Disponible', 'Auberge chaleureuse au cœur du Vieux-Québec.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\"]', '[\"Patrimoine\", \"Centre-ville\", \"Petit-déjeuner\"]', '2026-12-04', '2026-12-10', 24),
+(13, 'Copacabana Beach Hotel', 'Rio de Janeiro', 'Brésil', 'hotel', 2, 165.00, 4.6, '★★★★☆', 'Dernières chambres disponibles', 'Hôtel proche de la plage de Copacabana avec vue partielle mer.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"piscine\", \"petit-dejeuner\"]', '[\"Plage\", \"Piscine\", \"Vue mer\"]', '2026-08-14', '2026-08-22', 25),
+(14, 'Cape Town Ocean Villa', 'Le Cap', 'Afrique du Sud', 'villa', 4, 260.00, 4.8, '★★★★★', 'Disponible', 'Villa moderne entre montagne et océan, idéale pour un séjour en groupe.', 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"wifi\", \"annulation\"]', '[\"Villa\", \"Océan\", \"Groupe\"]', '2026-10-03', '2026-10-12', 26),
+(15, 'Zanzibar Spice Resort', 'Zanzibar', 'Tanzanie', 'resort', 2, 310.00, 4.7, '★★★★★', 'Disponible', 'Resort au bord de l’eau avec ambiance tropicale et jardin d’épices.', 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"petit-dejeuner\", \"wifi\"]', '[\"Resort\", \"Plage\", \"Détente\"]', '2026-12-08', '2026-12-15', 27),
+(16, 'Rome Centro Boutique', 'Rome', 'Italie', 'hotel', 2, 140.00, 4.5, '★★★★☆', 'Disponible', 'Boutique hôtel central pour visiter les monuments antiques à pied.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\", \"petit-dejeuner\"]', '[\"Hôtel\", \"Histoire\", \"Centre-ville\"]', '2026-06-18', '2026-06-23', 28),
+(17, 'Barcelona Design Apartment', 'Barcelone', 'Espagne', 'appartement', 3, 125.00, 4.4, '★★★★☆', 'Disponible', 'Appartement design proche des transports et des quartiers animés.', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"centre\", \"annulation\"]', '[\"Appartement\", \"Design\", \"Flexible\"]', '2026-07-11', '2026-07-16', 29),
+(18, 'Dubrovnik Sea View Rooms', 'Dubrovnik', 'Croatie', 'hotel', 2, 155.00, 4.6, '★★★★☆', 'Plus que 4 chambres disponibles', 'Chambres avec vue sur l’Adriatique et accès rapide à la vieille ville.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\"]', '[\"Mer\", \"Patrimoine\", \"Vue\"]', '2026-07-22', '2026-07-27', 30),
+(19, 'Prague Old Bridge Hotel', 'Prague', 'Tchéquie', 'hotel', 2, 98.00, 4.3, '★★★★☆', 'Disponible', 'Hôtel confortable proche du pont Charles et du centre historique.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"centre\", \"wifi\"]', '[\"Culture\", \"Centre-ville\", \"Patrimoine\"]', '2026-09-18', '2026-09-22', 31),
+(20, 'Istanbul Bosphorus Stay', 'Istanbul', 'Turquie', 'hotel', 2, 115.00, 4.5, '★★★★☆', 'Disponible', 'Hôtel avec accès rapide au Bosphore, aux mosquées et aux bazars.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\", \"centre\"]', '[\"Bosphore\", \"Culture\", \"Petit-déjeuner\"]', '2026-05-20', '2026-05-26', 32),
+(21, 'Bangkok Riverside Hotel', 'Bangkok', 'Thaïlande', 'hotel', 2, 95.00, 4.4, '★★★★☆', 'Disponible', 'Hôtel moderne en bord de rivière avec accès facile aux temples.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"wifi\", \"petit-dejeuner\"]', '[\"Rivière\", \"Piscine\", \"Temples\"]', '2026-12-02', '2026-12-09', 33),
+(22, 'Hanoi Old Quarter House', 'Hanoï', 'Vietnam', 'maison', 3, 82.00, 4.5, '★★★☆☆', 'Disponible', 'Maison d’hôtes dans le vieux quartier, parfaite pour découvrir la ville à pied.', 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"centre\"]', '[\"Vieux quartier\", \"Culture\", \"Local\"]', '2026-10-25', '2026-11-02', 34),
+(23, 'Sydney Harbour Hotel', 'Sydney', 'Australie', 'hotel', 2, 220.00, 4.6, '★★★★☆', 'Disponible', 'Hôtel proche du port, des plages et des transports urbains.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"piscine\", \"centre\"]', '[\"Port\", \"Plage\", \"Ville\"]', '2026-11-05', '2026-11-15', 35),
+(24, 'Queenstown Lake Chalet', 'Queenstown', 'Nouvelle-Zélande', 'chalet', 4, 280.00, 4.9, '★★★★★', 'Disponible', 'Chalet avec vue sur le lac et les montagnes, idéal pour les amateurs d’aventure.', 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"annulation\", \"petit-dejeuner\"]', '[\"Chalet\", \"Montagne\", \"Aventure\"]', '2026-10-08', '2026-10-17', 36),
+(25, 'Cusco Sacred Valley Inn', 'Cusco', 'Pérou', 'hotel', 2, 105.00, 4.6, '★★★★☆', 'Disponible', 'Hôtel calme pour préparer les excursions vers la Vallée Sacrée.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\"]', '[\"Culture\", \"Vallée Sacrée\", \"Randonnée\"]', '2026-06-06', '2026-06-14', 37),
+(26, 'Santorini Caldera Suites', 'Santorin', 'Grèce', 'suite', 2, 340.00, 4.8, '★★★★★', 'Dernières suites disponibles', 'Suites avec vue sur la caldeira et coucher de soleil.', 'https://images.unsplash.com/photo-1564501049412-61c2a3083791?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"wifi\", \"petit-dejeuner\"]', '[\"Vue mer\", \"Couple\", \"Premium\"]', '2026-08-19', '2026-08-25', 38),
+(27, 'Copenhagen Canal Hotel', 'Copenhague', 'Danemark', 'hotel', 2, 150.00, 4.4, '★★★★☆', 'Disponible', 'Hôtel proche des canaux, du centre et des pistes cyclables.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"centre\", \"petit-dejeuner\"]', '[\"Canaux\", \"Design\", \"Vélo\"]', '2026-06-03', '2026-06-07', 39),
+(28, 'Dubai Marina Resort', 'Dubaï', 'Émirats arabes unis', 'resort', 2, 290.00, 4.7, '★★★★★', 'Disponible', 'Resort moderne proche de la marina, du désert et des centres commerciaux.', 'https://images.unsplash.com/photo-1573843981267-be1999ff37cd?auto=format&fit=crop&w=900&q=80', '[\"piscine\", \"wifi\", \"petit-dejeuner\"]', '[\"Luxe\", \"Marina\", \"Piscine\"]', '2026-12-18', '2026-12-23', 40),
+(29, 'Oslo Fjord Hotel', 'Oslo', 'Norvège', 'hotel', 2, 145.00, 4.3, '★★★★☆', 'Disponible', 'Hôtel confortable avec accès au fjord, musées et quartiers modernes.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"centre\"]', '[\"Fjord\", \"Culture\", \"Nordique\"]', '2026-07-04', '2026-07-09', 41),
+(30, 'Reunion Volcano Lodge', 'La Réunion', 'France', 'lodge', 3, 170.00, 4.7, '★★★★☆', 'Disponible', 'Lodge au calme pour rayonner vers les cirques, cascades et volcans.', 'https://images.unsplash.com/photo-1445019980597-93fa8acb246c?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"annulation\", \"petit-dejeuner\"]', '[\"Volcan\", \"Randonnée\", \"Nature\"]', '2026-09-09', '2026-09-18', 42),
+(31, 'Montreal Downtown Loft', 'Montréal', 'Canada', 'appartement', 3, 120.00, 4.4, '★★★★☆', 'Disponible', 'Loft pratique en centre-ville, adapté aux festivals et sorties urbaines.', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"centre\", \"annulation\"]', '[\"Loft\", \"Festival\", \"Centre-ville\"]', '2026-08-02', '2026-08-08', 43),
+(32, 'Seville Patio Hotel', 'Séville', 'Espagne', 'hotel', 2, 102.00, 4.5, '★★★★☆', 'Disponible', 'Hôtel andalou avec patio, proche de l’Alcazar et des quartiers animés.', 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=900&q=80', '[\"wifi\", \"petit-dejeuner\", \"centre\"]', '[\"Flamenco\", \"Patio\", \"Culture\"]', '2026-05-14', '2026-05-19', 44);
+
+-- --------------------------------------------------------
+
 
 
 --
