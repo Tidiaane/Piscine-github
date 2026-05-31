@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3306
--- Généré le : dim. 31 mai 2026 à 09:10
+-- Généré le : dim. 31 mai 2026 à 13:30
 -- Version du serveur : 8.4.7
 -- Version de PHP : 8.3.28
 
@@ -30,19 +30,19 @@ SET time_zone = "+00:00";
 DROP TABLE IF EXISTS `activite`;
 CREATE TABLE IF NOT EXISTS `activite` (
   `id_activite` int NOT NULL AUTO_INCREMENT,
-  `nom` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-  `destination` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `categorie` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `niveau` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `moment` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `nom` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `destination` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `categorie` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `niveau` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `moment` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `duree` decimal(5,2) NOT NULL,
   `prix` decimal(10,2) NOT NULL,
   `note` decimal(3,1) DEFAULT '0.0',
   `places_disponibles` int DEFAULT '0',
-  `description` text COLLATE utf8mb4_general_ci,
-  `image` text COLLATE utf8mb4_general_ci,
-  `options` text COLLATE utf8mb4_general_ci,
-  `tags` text COLLATE utf8mb4_general_ci,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `image` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `options` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `tags` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `date_activite` date DEFAULT NULL,
   `recommande` int DEFAULT '1',
   PRIMARY KEY (`id_activite`)
@@ -69,15 +69,15 @@ INSERT INTO `activite` (`id_activite`, `nom`, `destination`, `categorie`, `nivea
 DROP TABLE IF EXISTS `destination`;
 CREATE TABLE IF NOT EXISTS `destination` (
   `id_destination` int NOT NULL AUTO_INCREMENT,
-  `nom_destination` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `pays` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `image` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `categorie` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `nom_destination` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `pays` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `categorie` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `note_moyenne` decimal(2,1) DEFAULT NULL,
   `prix` decimal(10,2) DEFAULT NULL,
-  `description` text COLLATE utf8mb4_general_ci,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `duree` int DEFAULT '7',
-  `saison` varchar(30) COLLATE utf8mb4_general_ci DEFAULT 'ete',
+  `saison` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'ete',
   `styles` json DEFAULT NULL,
   `tags` json DEFAULT NULL,
   `recommande` int DEFAULT '1',
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `destination_voyageur` (
   `id_destination_voyageur` int NOT NULL AUTO_INCREMENT,
   `id_destination` int NOT NULL,
   `id_utilisateur` int NOT NULL,
-  `role_voyageur` varchar(30) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'voyageur',
+  `role_voyageur` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'voyageur',
   `date_ajout` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_destination_voyageur`),
   UNIQUE KEY `uq_destination_voyageur` (`id_destination`,`id_utilisateur`),
@@ -131,19 +131,19 @@ INSERT INTO `destination_voyageur` (`id_destination_voyageur`, `id_destination`,
 DROP TABLE IF EXISTS `hebergement`;
 CREATE TABLE IF NOT EXISTS `hebergement` (
   `id_hebergement` int NOT NULL AUTO_INCREMENT,
-  `nom` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-  `destination` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `pays` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `nom` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `destination` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `pays` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `capacite` int DEFAULT '2',
   `prix` decimal(10,2) NOT NULL,
   `note` decimal(3,1) DEFAULT '0.0',
-  `etoiles` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `disponibilite` varchar(255) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `description` text COLLATE utf8mb4_general_ci,
-  `image` text COLLATE utf8mb4_general_ci,
-  `equipements` text COLLATE utf8mb4_general_ci,
-  `tags` text COLLATE utf8mb4_general_ci,
+  `etoiles` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `disponibilite` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `image` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `equipements` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `tags` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `date_arrivee` date DEFAULT NULL,
   `date_depart` date DEFAULT NULL,
   `recommande` int DEFAULT '1',
@@ -173,10 +173,10 @@ DROP TABLE IF EXISTS `itineraire`;
 CREATE TABLE IF NOT EXISTS `itineraire` (
   `id_itineraire` int NOT NULL AUTO_INCREMENT,
   `id_utilisateur` int NOT NULL,
-  `nom` varchar(120) COLLATE utf8mb4_general_ci NOT NULL,
-  `description` text COLLATE utf8mb4_general_ci,
+  `nom` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `date_creation` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `statut` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'actif',
+  `statut` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'actif',
   PRIMARY KEY (`id_itineraire`),
   KEY `idx_itineraire_utilisateur` (`id_utilisateur`,`statut`)
 ) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -191,10 +191,10 @@ DROP TABLE IF EXISTS `itineraire_element`;
 CREATE TABLE IF NOT EXISTS `itineraire_element` (
   `id_itineraire_element` int NOT NULL AUTO_INCREMENT,
   `id_itineraire` int NOT NULL,
-  `type_element` enum('transport','hebergement','activite') COLLATE utf8mb4_general_ci NOT NULL,
+  `type_element` enum('transport','hebergement','activite') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `id_element` int NOT NULL,
-  `nom_element` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
-  `details` text COLLATE utf8mb4_general_ci,
+  `nom_element` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `details` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `prix_unitaire` decimal(10,2) NOT NULL DEFAULT '0.00',
   `quantite` int NOT NULL DEFAULT '1',
   `ordre` int NOT NULL DEFAULT '1',
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS `itineraire_voyageur` (
   `id_itineraire_voyageur` int NOT NULL AUTO_INCREMENT,
   `id_itineraire` int NOT NULL,
   `id_utilisateur` int NOT NULL,
-  `role_voyageur` varchar(30) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'voyageur',
+  `role_voyageur` varchar(30) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'voyageur',
   `date_ajout` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_itineraire_voyageur`),
   UNIQUE KEY `uq_itineraire_voyageur` (`id_itineraire`,`id_utilisateur`),
@@ -233,9 +233,9 @@ DROP TABLE IF EXISTS `ligne_panier`;
 CREATE TABLE IF NOT EXISTS `ligne_panier` (
   `id_ligne` int NOT NULL AUTO_INCREMENT,
   `id_panier` int NOT NULL,
-  `type_element` enum('destination','transport','hebergement','activite') COLLATE utf8mb4_general_ci NOT NULL,
+  `type_element` enum('destination','transport','hebergement','activite') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `id_element` int NOT NULL,
-  `nom_element` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `nom_element` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `prix_unitaire` decimal(10,2) NOT NULL,
   `quantite` int DEFAULT '1',
   `date_arrivee` date DEFAULT NULL,
@@ -264,8 +264,8 @@ DROP TABLE IF EXISTS `notification`;
 CREATE TABLE IF NOT EXISTS `notification` (
   `id_notification` int NOT NULL AUTO_INCREMENT,
   `id_utilisateur` int NOT NULL,
-  `titre` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `message` text COLLATE utf8mb4_general_ci NOT NULL,
+  `titre` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `date_envoi` datetime DEFAULT CURRENT_TIMESTAMP,
   `statut_lecture` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id_notification`),
@@ -352,7 +352,7 @@ CREATE TABLE IF NOT EXISTS `reservation` (
   `id_utilisateur` int NOT NULL,
   `date_reservation` datetime DEFAULT CURRENT_TIMESTAMP,
   `montant_total` decimal(10,2) DEFAULT NULL,
-  `statut` enum('en_attente','validee','annulee') COLLATE utf8mb4_general_ci DEFAULT 'en_attente',
+  `statut` enum('en_attente','validee','annulee') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT 'en_attente',
   PRIMARY KEY (`id_reservation`),
   KEY `id_utilisateur` (`id_utilisateur`)
 ) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -378,7 +378,7 @@ CREATE TABLE IF NOT EXISTS `reservation_hebergement` (
   `date_arrivee` date NOT NULL,
   `date_depart` date NOT NULL,
   `quantite` int NOT NULL DEFAULT '1',
-  `statut` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'confirmee',
+  `statut` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'confirmee',
   `date_creation` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_reservation_hebergement`),
   KEY `idx_hebergement_dates` (`id_hebergement`,`date_arrivee`,`date_depart`)
@@ -406,7 +406,7 @@ CREATE TABLE IF NOT EXISTS `reservation_transport` (
   `id_transport` int NOT NULL,
   `id_utilisateur` int NOT NULL,
   `quantite` int NOT NULL DEFAULT '1',
-  `statut` varchar(20) COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'confirmee',
+  `statut` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'confirmee',
   `date_creation` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_reservation_transport`),
   KEY `idx_transport_statut` (`id_transport`,`statut`),
@@ -435,11 +435,11 @@ INSERT INTO `reservation_transport` (`id_reservation_transport`, `id_transport`,
 DROP TABLE IF EXISTS `transport`;
 CREATE TABLE IF NOT EXISTS `transport` (
   `id_transport` int NOT NULL AUTO_INCREMENT,
-  `type` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `icone` varchar(10) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `compagnie` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `ville_depart` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `ville_arrivee` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `type` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `icone` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `compagnie` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `ville_depart` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `ville_arrivee` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `date_depart` date DEFAULT NULL,
   `date_retour` date DEFAULT NULL,
   `heure_depart` time DEFAULT NULL,
@@ -447,10 +447,10 @@ CREATE TABLE IF NOT EXISTS `transport` (
   `duree` decimal(5,2) DEFAULT NULL,
   `prix` decimal(10,2) DEFAULT NULL,
   `places_disponibles` int DEFAULT NULL,
-  `options` text COLLATE utf8mb4_general_ci,
-  `tags` text COLLATE utf8mb4_general_ci,
+  `options` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
+  `tags` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   `recommande` int DEFAULT '1',
-  `description` text COLLATE utf8mb4_general_ci,
+  `description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci,
   PRIMARY KEY (`id_transport`)
 ) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -474,15 +474,15 @@ INSERT INTO `transport` (`id_transport`, `type`, `icone`, `compagnie`, `ville_de
 DROP TABLE IF EXISTS `utilisateur`;
 CREATE TABLE IF NOT EXISTS `utilisateur` (
   `id_utilisateur` int NOT NULL AUTO_INCREMENT,
-  `nom` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `prenom` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
-  `email` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
-  `mot_de_passe` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
-  `role` enum('client','admin','gestionnaire','fournisseur') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'client',
+  `nom` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `prenom` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `mot_de_passe` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+  `role` enum('client','admin','gestionnaire','fournisseur') CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'client',
   `date_inscription` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_utilisateur`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=MyISAM AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `utilisateur`
@@ -491,7 +491,10 @@ CREATE TABLE IF NOT EXISTS `utilisateur` (
 INSERT INTO `utilisateur` (`id_utilisateur`, `nom`, `prenom`, `email`, `mot_de_passe`, `role`, `date_inscription`) VALUES
 (1, 'chaus', 'luca', 'viagioo.tv@gmail.com', '$2y$10$DAJ1qJ2jEeNU4keeS.iQB.AUa98P0I3AIqNiMnnZYZQTGsl8dapxu', 'client', '2026-05-27 22:52:56'),
 (2, 'chaus', 'Milo', 'viagioo@gmail.com', '$2y$10$3lcM2REOLc/r0MJQ8zZ44ugPy55orNgoTIFoLmScKcgGeEVsCIdIi', 'client', '2026-05-28 09:23:59'),
-(3, 'te', 'es', 'test@mail.com', '$2y$10$9UFiMaGzL9VFkGLihYmiK.jNQB2YMUhMrVIDOkVdpNjQiMINlGv/6', 'admin', '2026-05-28 17:22:55');
+(3, 'te', 'es', 'test@mail.com', '$2y$10$9UFiMaGzL9VFkGLihYmiK.jNQB2YMUhMrVIDOkVdpNjQiMINlGv/6', 'admin', '2026-05-28 17:22:55'),
+(4, 'Admin', 'Admin', 'admin@mail.com', '$2y$10$OmiH8tEDEInApMcaeaEKkOaqjHlcR8cjxfRhDQneAn2/2bc70twNe', 'admin', '2026-05-31 15:27:19'),
+(5, 'Client', 'Client', 'client@mail.com', '$2y$10$VeoCIVzMsUUx5o43DPxed.LjE1U7nAUK2G6JXSMbnGlZN/i.7s/2u', 'client', '2026-05-31 15:27:55'),
+(6, 'Gestionnaire', 'Gestionnaire', 'gestionnaire@mail.com', '$2y$10$EXg4lLsqXhtWRThCiSgSw.dPdkQcwVIxciqq5ZiqqnMDObj7BKeQG', 'gestionnaire', '2026-05-31 15:29:06');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
