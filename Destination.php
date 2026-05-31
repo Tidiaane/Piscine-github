@@ -1121,7 +1121,173 @@ foreach ($destinationsDb as $destination) {
     </nav>
   </header>
 
- 
+  <main>
+    <section class="page-hero">
+      <div class="page-hero-container">
+        <div>
+          <div class="breadcrumb">VoyageVista &gt; Destinations</div>
+
+          <h1>Découvrez des destinations adaptées à votre prochain voyage</h1>
+
+          <p>
+            Comparez les séjours selon vos envies, votre budget et votre style de voyage,
+            puis consultez chaque fiche pour construire un panier complet.
+          </p>
+
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong><?= h($nombreDestinations) ?></strong>
+              <span>destinations disponibles</span>
+            </div>
+
+            <div class="hero-stat">
+              <strong><?= $prixMinDestination !== null ? h(formatPrixCourt($prixMinDestination)) : "—" ?></strong>
+              <span>prix d’entrée le plus bas</span>
+            </div>
+
+            <div class="hero-stat">
+              <strong><?= $noteMoyenneDestination !== null ? h(number_format($noteMoyenneDestination, 1, ",", " ")) . "/5" : "—" ?></strong>
+              <span>note moyenne des séjours</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="hero-panel-inner">
+            <div class="hero-panel-image"></div>
+
+            <div class="hero-panel-body">
+              <h2>Une sélection claire pour décider plus vite</h2>
+              <p>
+                Affinez vos recherches, comparez les propositions et ouvrez la fiche d’une destination avant de l’ajouter à votre séjour.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="main-container">
+      <form id="searchForm" class="search-card" onsubmit="rechercherDestination(event)">
+        <div class="search-title-line">
+          <h2>Affiner votre recherche</h2>
+          <button class="secondary-btn" type="button" onclick="resetFiltres()">Réinitialiser</button>
+        </div>
+
+        <div class="filters-grid">
+          <div class="field">
+            <label for="destination">Destination ou pays</label>
+            <input id="destination" type="text" placeholder="Ex : Bali, Suisse, Grèce" />
+          </div>
+
+          <div class="field">
+            <label for="categorie">Type de séjour</label>
+            <select id="categorie">
+              <option value="">Tous</option>
+              <option value="plage">Plage</option>
+              <option value="montagne">Montagne</option>
+              <option value="culture">Culture</option>
+              <option value="aventure">Aventure</option>
+              <option value="detente">Détente</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="duree">Durée souhaitée</label>
+            <select id="duree">
+              <option value="">Toutes</option>
+              <option value="3">3 jours max</option>
+              <option value="5">5 jours max</option>
+              <option value="7">7 jours max</option>
+              <option value="10">10 jours max</option>
+              <option value="15">15 jours max</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="saison">Période idéale</label>
+            <select id="saison">
+              <option value="">Toutes</option>
+              <option value="printemps">Printemps</option>
+              <option value="ete">Été</option>
+              <option value="automne">Automne</option>
+              <option value="hiver">Hiver</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="filter-panel">
+          <div class="filter-block">
+            <h3>Expérience recherchée</h3>
+
+            <div class="check-list">
+              <label><input class="style-filter" type="checkbox" value="famille" /> Famille</label>
+              <label><input class="style-filter" type="checkbox" value="couple" /> Couple</label>
+              <label><input class="style-filter" type="checkbox" value="amis" /> Amis</label>
+              <label><input class="style-filter" type="checkbox" value="sport" /> Sport</label>
+              <label><input class="style-filter" type="checkbox" value="culture" /> Culture</label>
+              <label><input class="style-filter" type="checkbox" value="nature" /> Nature</label>
+            </div>
+          </div>
+
+          <div class="filter-block">
+            <h3>Budget maximum</h3>
+
+            <input
+              id="prixRangeInput"
+              type="range"
+              min="300"
+              max="2500"
+              value="2500"
+              oninput="changerPrix(this.value)"
+            />
+
+            <div class="range-value">
+              <span>300 €</span>
+              <span id="prixRange">2500 €</span>
+              <span>2500 €</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="filter-actions">
+          <button class="primary-btn" type="submit">Afficher les résultats</button>
+        </div>
+      </form>
+
+      <div class="results-header">
+        <div>
+          <p>Destinations sélectionnées</p>
+          <h2><span id="nombreResultats">0</span> proposition(s)</h2>
+        </div>
+
+        <div class="sort-box">
+          <label for="tri">Trier par</label>
+
+          <select id="tri">
+            <option value="recommande">Recommandé</option>
+            <option value="prix-croissant">Prix croissant</option>
+            <option value="prix-decroissant">Prix décroissant</option>
+            <option value="duree">Durée la plus courte</option>
+            <option value="note">Meilleure note</option>
+          </select>
+        </div>
+      </div>
+
+      <section>
+        <div id="destinationList" class="destination-list"></div>
+
+        <div id="emptyResult" class="empty-result">
+          <strong>Aucune destination trouvée</strong>
+          <span>Modifiez vos critères pour afficher d’autres propositions.</span>
+        </div>
+      </section>
+
+      <div class="back-top-zone">
+        <button class="dark-btn" onclick="retourHautPage()">Revenir en haut de page</button>
+      </div>
+    </section>
+  </main>
 
   <footer>
     <div class="footer-content">
